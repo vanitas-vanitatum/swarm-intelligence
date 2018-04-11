@@ -1,6 +1,7 @@
 class SwarmIntelligence:
-    def __init__(self, population_size, constraints):
+    def __init__(self, population_size, nb_features, constraints):
         self.population_size = population_size
+        self.nb_features = nb_features
         self.global_best_solution = None
         self.local_best_solutions = None
         self.population = None
@@ -15,4 +16,7 @@ class SwarmIntelligence:
         raise NotImplementedError
 
     def update_positions(self, new_positions, step):
+        raise NotImplementedError
+
+    def go_swarm_go(self):
         raise NotImplementedError
