@@ -33,7 +33,6 @@ class SwarmIntelligence:
         self.populate_swarm(spawn_boundaries)
         self._compiled = True
 
-
     def populate_swarm(self, spawn_boundaries):
         spawn_boundaries = np.array(spawn_boundaries)
         minimums = spawn_boundaries[:, 0]
@@ -48,7 +47,7 @@ class SwarmIntelligence:
 
         self.local_best_solutions = population
         self.global_best_solution = population[np.argmax(fit_values[:, 0])]
-
+    
         self.current_local_fitness = fit_values
         self.current_global_fitness = np.max(fit_values[:, 0])
 
