@@ -33,6 +33,11 @@ class TestWhaleAlgorithm(unittest.TestCase):
             position = self.alg.get_new_positions(i)
             self.assertEqual((self.alg.population_size, self.alg.nb_features), position.shape)
 
+    def test_get_optimal_value(self):
+        eta, rho = WhaleAlgorithm.get_optimal_eta_and_rho_zero(((1, 2), (2, 3)))
+        self.assertAlmostEqual(eta, 19.61, delta=1e-2)
+        self.assertAlmostEqual(rho, 2)
+
 
 if __name__ == '__main__':
     unittest.main()
