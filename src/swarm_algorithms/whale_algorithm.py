@@ -6,7 +6,7 @@ import scipy.spatial.distance as dist
 
 class WhaleAlgorithm(SwarmIntelligence):
     def __init__(self, population_size, nb_features, constraints, attenuation_of_medium,
-                 intensity_at_source, seed=0xCAFFE):
+                 intensity_at_source, seed=None):
         super().__init__(population_size, nb_features, constraints, seed)
         self._eta = attenuation_of_medium
         self._rho_zero = intensity_at_source
@@ -19,11 +19,8 @@ class WhaleAlgorithm(SwarmIntelligence):
 
     def update_positions(self, new_positions, step_number):
         self.population = new_positions
+        self.update_best_local_global(self.population)
         return self.population
-
-    def go_swarm_go(self):
-        # TODO: Maybe implement in the future
-        pass
 
     def _get_nearest_best_whale_and_distance(self, population):
         """
@@ -31,8 +28,7 @@ class WhaleAlgorithm(SwarmIntelligence):
         :param population: Population to consider.
         :return: Indices of best whales in the population for each whale as np.ndarray N shape
         """
-        assert self.is_compiled
-        fit_values = self.fit_function(population)
+        fit_values = self.current_local_fitness
         nearest_best_whales = []
         distances_to_best_whales = []
         for i in range(len(fit_values)):
@@ -51,15 +47,15 @@ class WhaleAlgorithm(SwarmIntelligence):
         return nearest_best_whales, distances_to_best_whales
 
     @staticmethod
-    def get_optimal_eta_and_rho_zero(search_space_boundaries):
+    def get_optimal_eta_and_rho_zero(spawn_boundaries):
         """
         Generates \eta parameter, optimal according to https://arxiv.org/pdf/1702.03389.pdf.
-        :param search_space_boundaries:
+        :param spawn_boundaries:
             Search space for each dimension. It should be in form of list of tuples: [(b_{min}, b_{max}), ...],
             where num of tuples is equal to number of dimensions.
         :return: Optimal \eta parameter.
         """
-        search_space_boundaries = np.array(search_space_boundaries)
+        search_space_boundaries = np.array(spawn_boundaries)
         min_vector = search_space_boundaries[:, 0]
         max_vector = search_space_boundaries[:, 1]
         d_max = np.linalg.norm(max_vector - min_vector, ord=2)
