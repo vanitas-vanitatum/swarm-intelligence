@@ -5,7 +5,7 @@ import numpy as np
 class ParticleSwarmOptimisation(SwarmIntelligence):
 
     def __init__(self, population_size, nb_features, constraints, inertia=1, divergence=1, learning_factor_1=2,
-                 learning_factor_2=2, seed=0xCAFFE):
+                 learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints, seed)
         self.population_velocities = None
 

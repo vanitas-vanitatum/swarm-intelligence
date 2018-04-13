@@ -6,12 +6,9 @@ import numpy as np
 class QuantumDeltaParticleSwarmOptimization(SwarmIntelligence):
     # https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1330875
 
-    def __init__(self, population_size, nb_features, constraints, delta_potential_length_parameter, seed=0xCAFFE):
+    def __init__(self, population_size, nb_features, constraints, delta_potential_length_parameter, seed=None):
         super().__init__(population_size, nb_features, constraints, seed)
         self.g = delta_potential_length_parameter
-
-    def go_swarm_go(self):
-        pass
 
     def update_positions(self, new_positions, step):
         self.population = new_positions

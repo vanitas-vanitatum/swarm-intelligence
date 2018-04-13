@@ -2,7 +2,7 @@ import numpy as np
 
 
 class SwarmIntelligence:
-    def __init__(self, population_size, nb_features, constraints, seed=0xCAFFE):
+    def __init__(self, population_size, nb_features, constraints, seed=None):
         self.population_size = population_size
         self.nb_features = nb_features
 
@@ -38,9 +38,10 @@ class SwarmIntelligence:
         minimums = spawn_boundaries[:, 0]
         maxes = spawn_boundaries[:, 1]
         population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
-        for i in range(self.population_size):
-            while not self.constraints.check(population[i, :]):
-                population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
+        if self.constraints:
+            for i in range(self.population_size):
+                while not self.constraints.check(population[i, :]):
+                    population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
         self.population = population
 
         fit_values = self.fit_function(population)
