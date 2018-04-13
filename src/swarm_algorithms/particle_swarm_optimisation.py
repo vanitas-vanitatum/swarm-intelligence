@@ -25,7 +25,7 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
     def update_positions(self, new_positions, step):
         pass
 
-    def get_new_positions(self, step):
+    def get_new_positions(self, step_number):
         v = self.calculate_velocities()
         return self.population + v
 
