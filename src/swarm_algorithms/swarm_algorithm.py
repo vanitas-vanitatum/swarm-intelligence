@@ -76,6 +76,7 @@ class SwarmIntelligence:
         return self.population
 
     def go_swarm_go(self, stop_condition):
+        assert self.is_compiled, "Algorithm is not compiled, use `compile` method"
         self._step_number = 0
 
         while not stop_condition.check(self):
