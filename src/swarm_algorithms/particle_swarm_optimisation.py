@@ -47,7 +47,7 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
 class BasicPSO(ParticleSwarmOptimisation):
 
     def __init__(self, population_size, nb_features, constraints,
-                 learning_factor_1=2, learning_factor_2=2, seed=0xCAFFE):
+                 learning_factor_1=2, learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints,
                          inertia=1., divergence=1.,
                          learning_factor_1=learning_factor_1,
@@ -58,7 +58,7 @@ class BasicPSO(ParticleSwarmOptimisation):
 class InertiaPSO(ParticleSwarmOptimisation):
 
     def __init__(self, population_size, nb_features, constraints, inertia=1.5,
-                 learning_factor_1=2, learning_factor_2=2, seed=0xCAFFE):
+                 learning_factor_1=2, learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints,
                          inertia=inertia, divergence=1.,
                          learning_factor_1=learning_factor_1,
@@ -69,7 +69,7 @@ class InertiaPSO(ParticleSwarmOptimisation):
 class DivergentPSO(ParticleSwarmOptimisation):
 
     def __init__(self, population_size, nb_features, constraints, inertia=1.5, divergence=np.sqrt(2),
-                 learning_factor_1=2, learning_factor_2=2, seed=0xCAFFE):
+                 learning_factor_1=2, learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints,
                          inertia=inertia, divergence=divergence,
                          learning_factor_1=learning_factor_1,

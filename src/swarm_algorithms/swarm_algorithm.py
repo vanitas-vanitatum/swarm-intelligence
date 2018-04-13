@@ -48,25 +48,25 @@ class SwarmIntelligence:
         fit_values = self.fit_function(population)
 
         self.local_best_solutions = population
-        self.global_best_solution = population[np.argmax(fit_values[:, 0])]
+        self.global_best_solution = population[np.argmin(fit_values[:, 0])]
     
         self.current_local_fitness = fit_values
-        self.current_global_fitness = np.max(fit_values[:, 0])
+        self.current_global_fitness = np.min(fit_values[:, 0])
 
         return population
 
     def update_best_local_global(self, population):
         current_fitness = self.fit_function(population)
-        mask = current_fitness > self.current_local_fitness
+        mask = current_fitness < self.current_local_fitness
 
         self.local_best_solutions = mask * population + (1 - mask) * self.local_best_solutions
         self.current_local_fitness = mask * current_fitness + (1 - mask) * self.current_local_fitness
 
-        best_solution_fitness = np.max(current_fitness[:, 0])
+        best_solution_fitness = np.min(current_fitness[:, 0])
 
-        if best_solution_fitness > self.current_global_fitness:
+        if best_solution_fitness < self.current_global_fitness:
             self.current_global_fitness = best_solution_fitness
-            self.global_best_solution = population[np.argmax(current_fitness[:, 0])]
+            self.global_best_solution = population[np.argmin(current_fitness[:, 0])]
 
     def get_new_positions(self, step_number):
         raise NotImplementedError

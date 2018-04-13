@@ -27,14 +27,14 @@ class WhaleAlgorithm(SwarmIntelligence):
         nearest_best_whales = []
         distances_to_best_whales = []
         for i in range(len(fit_values)):
-            where_better = np.where(fit_values >= fit_values[i][0])[0]
+            where_better = np.where(fit_values <= fit_values[i][0])[0]
             considered_whales = population[where_better]
             distances = dist.cdist(considered_whales, population[i:i + 1])[1:, 0]
             if len(distances) == 0:
                 nearest_best_whales.append(i)
                 distances_to_best_whales.append(0)
                 continue
-            index = np.argmax(distances)
+            index = np.argmin(distances)
             distances_to_best_whales.append(distances[index])
             nearest_best_whales.append(index)
         nearest_best_whales = np.array(nearest_best_whales)
