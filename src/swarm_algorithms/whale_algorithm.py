@@ -17,11 +17,6 @@ class WhaleAlgorithm(SwarmIntelligence):
             -self._eta * distances_to_best_whales[:, np.newaxis]), size=(self.population_size, self.nb_features)) * (
                        self.population[nearest_best_whales] - self.population)
 
-    def update_positions(self, new_positions, step_number):
-        self.population = new_positions
-        self.update_best_local_global(self.population)
-        return self.population
-
     def _get_nearest_best_whale_and_distance(self, population):
         """
         Calculates nearest best whale for every whale in the population.
