@@ -19,6 +19,7 @@ class SwarmIntelligence:
 
         self._seed = seed
         self._rng = np.random.RandomState(seed=self._seed)
+        self._step_number = None
 
     def compile(self, fit_function, spawn_boundaries):
         """
@@ -70,11 +71,21 @@ class SwarmIntelligence:
         raise NotImplementedError
 
     def update_positions(self, new_positions, step):
-        raise NotImplementedError
+        self.population = new_positions
+        return self.population
 
-    def go_swarm_go(self):
-        # TODO: To implement in separate task
-        pass
+    def go_swarm_go(self, stop_condition):
+        self._step_number = 0
+
+        while not stop_condition.check(self):
+            pos = self.get_new_positions(self._step_number)
+            self.update_positions(pos, self._step_number)
+            self.update_best_local_global(self.population)
+            self._step_number += 1
+
+        self._step_number = None
+
+        return self.global_best_solution
 
     @property
     def is_compiled(self):

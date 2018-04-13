@@ -38,5 +38,5 @@ class MaybeSpecification(Specification):
         self.specif1 = specification1
         self.specif2 = specification2
 
-    def check(self, element):
+    def check(self, element, **kwargs):
         return self.specif1.check(element) or self.specif2.check(element)
