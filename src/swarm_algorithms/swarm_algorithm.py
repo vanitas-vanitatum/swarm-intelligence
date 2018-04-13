@@ -47,7 +47,7 @@ class SwarmIntelligence:
 
         self.local_best_solutions = population
         self.global_best_solution = population[np.argmax(fit_values[:, 0])]
-
+    
         self.current_local_fitness = fit_values
         self.current_global_fitness = np.max(fit_values[:, 0])
 
