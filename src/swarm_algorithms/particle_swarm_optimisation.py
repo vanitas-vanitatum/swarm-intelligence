@@ -17,11 +17,6 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
     def go_swarm_go(self):
         pass
 
-    def populate_swarm(self):
-        # TODO: what values should be used? [0,1] or maybe [-inf, +inf]? or should constraints give min and max?
-        pop = np.random.random((self.population_size, self.nb_features))
-        raise NotImplementedError
-
     def update_positions(self, new_positions, step):
         pass
 

@@ -33,10 +33,11 @@ class SwarmIntelligence:
         self.populate_swarm(spawn_boundaries)
         self._compiled = True
 
-    def populate_swarm(self, search_space_boundaries):
-        search_space_boundaries = np.array(search_space_boundaries)
-        minimums = search_space_boundaries[:, 0]
-        maxes = search_space_boundaries[:, 1]
+
+    def populate_swarm(self, spawn_boundaries):
+        spawn_boundaries = np.array(spawn_boundaries)
+        minimums = spawn_boundaries[:, 0]
+        maxes = spawn_boundaries[:, 1]
         population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
         for i in range(self.population_size):
             while not self.constraints.check(population[i, :]):
