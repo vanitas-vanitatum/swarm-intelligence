@@ -10,11 +10,6 @@ class QuantumDeltaParticleSwarmOptimization(SwarmIntelligence):
         super().__init__(population_size, nb_features, constraints, seed)
         self.g = delta_potential_length_parameter
 
-    def update_positions(self, new_positions, step):
-        self.population = new_positions
-        self.update_best_local_global(self.population)
-        return self.population
-
     def get_new_positions(self, step_number):
         phi_1 = self._rng.rand(self.population_size, self.nb_features)
         phi_2 = self._rng.rand(self.population_size, self.nb_features)
