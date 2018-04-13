@@ -38,6 +38,9 @@ class SwarmIntelligence:
         minimums = search_space_boundaries[:, 0]
         maxes = search_space_boundaries[:, 1]
         population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
+        for i in range(self.population_size):
+            while not self.constraints.check(population[i, :]):
+                population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
         self.population = population
 
         fit_values = self.fit_function(population)
