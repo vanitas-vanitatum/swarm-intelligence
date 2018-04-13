@@ -33,6 +33,7 @@ class SwarmIntelligence:
         self.populate_swarm(spawn_boundaries)
         self._compiled = True
 
+
     def populate_swarm(self, spawn_boundaries):
         spawn_boundaries = np.array(spawn_boundaries)
         minimums = spawn_boundaries[:, 0]
