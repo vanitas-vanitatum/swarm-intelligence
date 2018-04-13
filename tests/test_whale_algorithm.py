@@ -33,8 +33,15 @@ class TestWhaleAlgorithm(unittest.TestCase):
             position = self.alg.get_new_positions(i)
             self.assertEqual((self.alg.population_size, self.alg.nb_features), position.shape)
 
+    def test_update_position(self):
+        for i in range(10):
+            position_movement = self.alg.get_new_positions(i)
+            old_positions = self.alg.population.copy()
+            self.alg.update_positions(position_movement, i)
+            np.testing.assert_almost_equal(self.alg.population - old_positions, position_movement, decimal=5)
+
     def test_get_optimal_value(self):
-        eta, rho = WhaleAlgorithm.get_optimal_eta_and_rho_zero(((1, 2), (2, 3)))
+        eta, rho = WhaleAlgorithm.get_optimal_eta_and_rho_zero(((1, 2), (2, 3)),)
         self.assertAlmostEqual(eta, 19.61, delta=1e-2)
         self.assertAlmostEqual(rho, 2)
 
