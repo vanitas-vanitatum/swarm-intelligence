@@ -15,30 +15,15 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
         self.lf_1 = learning_factor_1
         self.lf_2 = learning_factor_2
 
-        self.global_best_solution = None
-        self.local_best_solution = None
+    def populate_swarm(self, spawn_boundaries):
+        super().populate_swarm(spawn_boundaries)
 
-        self.current_global_fitness = None
-        self.current_local_fitness = None
+        spawn_boundaries = np.array(spawn_boundaries)
+        minimums = spawn_boundaries[:, 0]
+        maxes = spawn_boundaries[:, 1]
 
-    def populate_swarm(self, search_space_boundaries):
-        population = super().populate_swarm(search_space_boundaries)
-        fit_values = self.fit_function(population)
-
-        self.local_best_solution = population
-        self.global_best_solution = population[np.argmax(fit_values[:, 0])]
-
-        self.current_local_fitness = fit_values
-        self.current_global_fitness = np.max(fit_values[:, 0])
-
-    def compile(self, fit_function, search_space_boundaries):
-        super().compile(fit_function, search_space_boundaries)
-
-        search_space_boundaries = np.array(search_space_boundaries)
-        minimums = search_space_boundaries[:, 0]
-        maxes = search_space_boundaries[:, 1]
-
-        self.population_velocities = self._rng.uniform(-np.abs(maxes - minimums), np.abs(maxes, minimums),
+        self.population_velocities = self._rng.uniform(-np.abs(maxes - minimums),
+                                                       np.abs(maxes - minimums),
                                                        size=(self.population_size, self.nb_features))
 
     def go_swarm_go(self):
@@ -47,19 +32,6 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
     def update_positions(self, new_positions, step):
         self.population = new_positions
         return self.population
-
-    def _update_best_local_global(self, population):
-        current_fitness = self.fit_function(population)
-        mask = current_fitness > self.current_local_fitness
-
-        self.local_best_solution = mask * population + (1 - mask) * self.local_best_solution
-        self.current_local_fitness = mask * current_fitness + (1 - mask) * self.current_local_fitness
-
-        best_solution_fitness = np.max(current_fitness[:, 0])
-
-        if best_solution_fitness > self.current_global_fitness:
-            self.current_global_fitness = best_solution_fitness
-            self.global_best_solution = population[np.argmax(current_fitness[:, 0])]
 
     def get_new_positions(self, step_number):
         v = self.calculate_velocities(step_number)
@@ -73,7 +45,7 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
         phi_1 = self._rng.rand(self.population_size, self.nb_features)
         phi_2 = self._rng.rand(self.population_size, self.nb_features)
 
-        local_factor = self.lf_1 * phi_1 * (self.local_best_solution - self.population)
+        local_factor = self.lf_1 * phi_1 * (self.local_best_solutions - self.population)
         global_factor = self.lf_2 * phi_2 * (self.global_best_solution - self.population)
         v = self.inertia * self.population_velocities + local_factor + global_factor
-        return self.divergence ** step * v
+        return (self.divergence ** step) * v
