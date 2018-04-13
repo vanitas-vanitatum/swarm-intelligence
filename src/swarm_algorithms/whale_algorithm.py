@@ -13,12 +13,12 @@ class WhaleAlgorithm(SwarmIntelligence):
 
     def get_new_positions(self, step_number):
         nearest_best_whales, distances_to_best_whales = self._get_nearest_best_whale_and_distance(self.population)
-        return self._rng.uniform(0, self._rho_zero * np.exp(-self._eta * distances_to_best_whales[:, np.newaxis]),
-                                 size=(self.population_size, self.nb_features)) * (
+        return self.population + self._rng.uniform(0, self._rho_zero * np.exp(
+            -self._eta * distances_to_best_whales[:, np.newaxis]), size=(self.population_size, self.nb_features)) * (
                        self.population[nearest_best_whales] - self.population)
 
     def update_positions(self, new_positions, step_number):
-        self.population += new_positions
+        self.population = new_positions
         return self.population
 
     def go_swarm_go(self):
