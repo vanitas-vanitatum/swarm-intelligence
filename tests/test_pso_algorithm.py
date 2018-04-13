@@ -1,12 +1,12 @@
 import unittest
 import numpy as np
 
-from src.swarm_algorithms.quantum_algorithm import QuantumDeltaParticleSwarmOptimization
+from src.swarm_algorithms.particle_swarm_optimisation import ParticleSwarmOptimisation
 
 
-class TestQuantumAlgorithm(unittest.TestCase):
+class TestParticleSwarmOptimisation(unittest.TestCase):
     def setUp(self):
-        self.alg = QuantumDeltaParticleSwarmOptimization(100, 2, None, np.log(np.sqrt(2)), seed=0)
+        self.alg = ParticleSwarmOptimisation(100, 2, None, seed=0)
         self.alg.compile(lambda x: np.sum(x, axis=1, keepdims=True), ((1, 2), (2, 3)))
 
     def test_init(self):
