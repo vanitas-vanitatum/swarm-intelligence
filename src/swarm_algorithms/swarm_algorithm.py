@@ -1,3 +1,5 @@
+from src.callbacks import CallbackContainer
+
 import numpy as np
 
 
@@ -75,17 +77,23 @@ class SwarmIntelligence:
         self.population = new_positions
         return self.population
 
-    def go_swarm_go(self, stop_condition):
+    def go_swarm_go(self, stop_condition, callbacks=None):
         assert self.is_compiled, "Algorithm is not compiled, use `compile` method"
         self._step_number = 0
+        all_callbacks = CallbackContainer(callbacks)
+        all_callbacks.initialize_callback(self)
 
+        all_callbacks.on_optimization_start()
         while not stop_condition.check(self):
+            all_callbacks.on_epoch_start()
             pos = self.get_new_positions(self._step_number)
             self.update_positions(pos, self._step_number)
             self.update_best_local_global(self.population)
             self._step_number += 1
+            all_callbacks.on_epoch_end()
 
         self._step_number = None
+        all_callbacks.on_optimization_end()
 
         return self.global_best_solution
 
