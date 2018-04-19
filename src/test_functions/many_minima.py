@@ -3,7 +3,9 @@ from src.test_functions.test_function import Function
 
 
 class Ackley(Function):
-
+    """
+    https://www.sfu.ca/~ssurjano/ackley.html
+    """
     def __init__(self, a=20, b=0.2, c=2*np.pi):
         self.a = a
         self.b = b
@@ -24,7 +26,9 @@ class Ackley(Function):
 
 
 class Shwefel(Function):
-
+    """
+    https://www.sfu.ca/~ssurjano/schwef.html
+    """
     def __init__(self):
         pass
 

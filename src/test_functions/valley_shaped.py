@@ -3,7 +3,9 @@ from src.test_functions.test_function import Function
 
 
 class Rosenbrock(Function):
-
+    """
+    https://www.sfu.ca/~ssurjano/rosen.html
+    """
     def minimal_value(self):
         return 0.0
 

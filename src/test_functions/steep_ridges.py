@@ -3,6 +3,9 @@ from src.test_functions.test_function import Function
 
 
 class Michalewicz(Function):
+    """
+    https://www.sfu.ca/~ssurjano/michal.html
+    """
     def __init__(self, m=10):
         self.m = m
 

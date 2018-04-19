@@ -3,6 +3,9 @@ from src.test_functions.test_function import Function
 
 
 class PermDBeta(Function):
+    """
+    https://www.sfu.ca/~ssurjano/perm0db.html
+    """
     def __init__(self, beta=0.5):
         self.beta = beta
 
