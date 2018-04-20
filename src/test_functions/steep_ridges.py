@@ -9,10 +9,11 @@ class Michalewicz(Function):
     def __init__(self, m=10):
         self.m = m
 
-    def minimal_value(self):
+    def minimal_value(self, nb_dimensions):
         """
         https://www.sfu.ca/~ssurjano/michal.html
         different with each dimensionality, not easy to determine
+        :param nb_dimensions:
         """
         return None
 
