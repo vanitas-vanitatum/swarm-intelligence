@@ -7,6 +7,7 @@ import shapely.geometry
 from descartes import PolygonPatch
 from shapely.geometry import Polygon, Point
 
+from src.common import ZORDERS, SHOW_HIT_BOXES, get_hit_box_visualization
 from src.furnishing.drawable import Drawable
 from src.furnishing.math_utils import MatrixUtils
 
@@ -85,6 +86,10 @@ class BaseFurniture(Drawable, ABC):
         return self.shape.within(self.room)
 
     @property
+    def occupied_area(self):
+        return self.hit_box_shape
+
+    @property
     def color(self):
         # https://stackoverflow.com/questions/3380726/converting-a-rgb-color-tuple-to-a-six-digit-code-in-python
         return '#%02x%02x%02x' % tuple(self.base_color)
@@ -108,8 +113,11 @@ class RectangularFurniture(BaseFurniture):
         self.update_polygon()
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape, fc=kwargs.get('color', FURNITURE_COLORS['skin']),
-                             ec=kwargs.get('color', FURNITURE_COLORS['gray']))
+        patch = [PolygonPatch(self.shape, fc=kwargs.get('color', FURNITURE_COLORS['skin']),
+                              ec=kwargs.get('color', FURNITURE_COLORS['gray']),
+                              zorder=ZORDERS['furniture'])]
+        if SHOW_HIT_BOXES:
+            patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
 
     def update_polygon(self):
