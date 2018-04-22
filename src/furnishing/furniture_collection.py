@@ -5,7 +5,7 @@ from shapely.geometry import Polygon, Point
 
 from src.furnishing.furniture_construction import RectangularFurniture, FURNITURE_COLORS
 from src.furnishing.math_utils import MatrixUtils
-from src.common import SHOW_HIT_BOXES
+from src.common import SHOW_HIT_BOXES, ZERO_POINT
 
 
 def get_angle_to_fit_wall(x, y, room_width, room_height):
@@ -238,40 +238,40 @@ class Cupboard(RectangularFurniture):
 
 class Sofa(RectangularFurniture):
     def __init__(self, x, y, angle, width, height, can_stand_on_carpet, allowed_tv_angle=30, name=None):
-        super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
         self.sight_vector = np.array(
-            [0, self.height]
+            [0, height], dtype=np.float32
         )
+
         self.sight_vector /= np.linalg.norm(self.sight_vector, ord=2)
         self.allowed_tv_angle = allowed_tv_angle
+        super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
 
     def update_polygon(self):
         super().update_polygon()
         self.sight_vector = MatrixUtils.rotate_points(
-            self.sight_vector, self.angle, self.center
+            self.sight_vector, self.angle, ZERO_POINT
         )
 
-    def can_see_tv(self):
+    def can_see_tv(self, tv):
         if self.room is None:
             warnings.warn("Sofa is not in the room")
             return
-        if not self.room.has_tv():
+        if tv.room is None:
             warnings.warn("No TV found in the room")
             return
-        tv = self.room.get_tv()
         return (self._is_normal_face_visible(tv.tv_normal_vector, tv.center) and
                 self._are_edge_points_visible(tv.get_edge_tv_points()))
 
     def _is_normal_face_visible(self, tv_normal_vector, tv_center):
         tv_to_sofa_vector = self.center - tv_center
         angle = MatrixUtils.get_angle_between_vectors(tv_to_sofa_vector, tv_normal_vector)
-        return angle < 90
+        return angle <= self.allowed_tv_angle
 
     def _are_edge_points_visible(self, tv_edge_points):
         def _check_for_one_point(point, sofa_center, sofa_normal_vector, allowed_angle):
             center_to_edge_point_vector = point - sofa_center
             angle = MatrixUtils.get_angle_between_vectors(sofa_normal_vector, center_to_edge_point_vector)
-            return angle < allowed_angle
+            return angle <= allowed_angle
 
         return (_check_for_one_point(tv_edge_points[0], self.center, self.sight_vector, self.allowed_tv_angle) and
                 _check_for_one_point(tv_edge_points[1], self.center, self.sight_vector, self.allowed_tv_angle))
@@ -306,13 +306,14 @@ class Tv(RectangularFurniture):
 
     def update_polygon(self):
         super().update_polygon()
-        self.tv_points = np.array([(self.x - self.tv_width / 2, self.y - self.tv_thickness / 2),
+        self.tv_points = np.array([(self.x - self.tv_width / 2, self.y + self.tv_thickness / 2),
+                                   (self.x - self.tv_width / 2, self.y - self.tv_thickness / 2),
                                    (self.x + self.tv_width / 2, self.y - self.tv_thickness / 2),
-                                   (self.x + self.tv_width / 2, self.y + self.tv_thickness / 2),
-                                   (self.x - self.tv_width / 2, self.y + self.tv_thickness / 2)])
+                                   (self.x + self.tv_width / 2, self.y + self.tv_thickness / 2)])
         new_points = MatrixUtils.rotate_points(self.tv_points, self.angle)
+        self.tv_points = new_points
         self.tv_shape = Polygon(new_points)
-        self.tv_normal_vector = MatrixUtils.rotate_points(self.tv_normal_vector, self.angle, self.center)
+        self.tv_normal_vector = MatrixUtils.rotate_points(self.tv_normal_vector, self.angle, ZERO_POINT)
 
     def get_edge_tv_points(self):
         return self.tv_points[[0, 3]]
