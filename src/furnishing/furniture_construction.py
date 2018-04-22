@@ -107,6 +107,10 @@ class RectangularFurniture(BaseFurniture):
         return patch
 
     def update_polygon(self):
+        self.points = np.array([(self.x - self.width / 2, self.y - self.height / 2),
+                                (self.x + self.width / 2, self.y - self.height / 2),
+                                (self.x + self.width / 2, self.y + self.height / 2),
+                                (self.x - self.width / 2, self.y + self.height / 2)])
         new_points = MatrixUtils.rotate_points(self.points, self.angle)
         self.shape = Polygon(new_points)
         self.hit_box_shape = self.shape
@@ -127,6 +131,7 @@ class EllipseFurniture(BaseFurniture):
         return patch
 
     def update_polygon(self):
+        self.base_color = (self.x, self.y)
         circ = Point(self.base_point).buffer(1)
         circ = shapely.affinity.scale(circ, self.width / 2, self.height / 2)
         circ = shapely.affinity.rotate(circ, self.angle)
