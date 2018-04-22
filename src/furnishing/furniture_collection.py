@@ -1,9 +1,11 @@
 import numpy as np
+import warnings
 from descartes import PolygonPatch
 from shapely.geometry import Polygon, Point
 
-from src.furnishing.furniture_construction import RectangularFurniture
+from src.furnishing.furniture_construction import RectangularFurniture, FURNITURE_COLORS
 from src.furnishing.math_utils import MatrixUtils
+from src.common import SHOW_HIT_BOXES
 
 
 def get_angle_to_fit_wall(x, y, room_width, room_height):
@@ -21,16 +23,17 @@ def get_angle_to_fit_wall(x, y, room_width, room_height):
 
 
 class Window(RectangularFurniture):
-    def __init__(self, x, y, room_width, room_height, width, view_angle=30, view_depth=3):
+    def __init__(self, x, y, room_width, room_height, width, view_angle=30, view_depth=3, name=None):
         self.hit_box_points = None
         self.view_angle = view_angle
         self.view_depth = view_depth
 
         super().__init__(x, y, get_angle_to_fit_wall(x, y, room_width, room_height),
-                         width, 0.5, False)
+                         width, 0.5, False, False, name)
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape, fc=kwargs.get('window_color', 'black'),
+        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
+                             fc=kwargs.get('window_color', 'black'),
                              ec=kwargs.get('window_color', 'black'), alpha=0.3)
         return patch
 
@@ -84,7 +87,7 @@ class Window(RectangularFurniture):
 
 
 class Door(RectangularFurniture):
-    def __init__(self, x, y, room_width, room_height, width, open_angle=120):
+    def __init__(self, x, y, room_width, room_height, width, open_angle=120, name=None):
         assert 0 < open_angle < 180, "Rly? Do you live in Wallmart?"
 
         self.open_angle = open_angle
@@ -110,32 +113,209 @@ class Door(RectangularFurniture):
         )
 
         super().__init__(x, y, get_angle_to_fit_wall(x, y, room_width, room_height),
-                         width, 0.5, False)
+                         width, 0.5, False, False, name)
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape, fc=kwargs.get('door_color', 'black'),
+        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
+                             fc=kwargs.get('door_color', 'black'),
                              ec=kwargs.get('door_color', 'black'), alpha=0.9)
         return patch
 
     def update_polygon(self):
         self.pivot_hit_box_points = MatrixUtils.rotate_points(self.pivot_hit_box_points,
                                                               self.angle,
-                                                              np.array([self.x, self.y]))
+                                                              self.center)
         self.hit_box_points_door_1 = MatrixUtils.rotate_points(self.hit_box_points_door_1,
                                                                self.angle,
-                                                               np.array([self.x, self.y]))
+                                                               self.center)
         self.hit_box_points_door_2 = MatrixUtils.rotate_points(self.hit_box_points_door_2,
                                                                self.angle,
-                                                               np.array([self.x, self.y]))
+                                                               self.center)
 
         polygon_hit_box_points_door_1 = Polygon(self.hit_box_points_door_1)
         polygon_hit_box_points_door_2 = Polygon(self.hit_box_points_door_2)
 
         self.hit_box_shape = Point(self.pivot_hit_box_points[0]).buffer(self.width)
-        self.hit_box_shape = self.hit_box_shape.difference(polygon_hit_box_points_door_1).difference(polygon_hit_box_points_door_2)
+        self.hit_box_shape = self.hit_box_shape.difference(polygon_hit_box_points_door_1).difference(
+            polygon_hit_box_points_door_2)
         new_points = MatrixUtils.rotate_points(self.points, self.angle)
         self.shape = Polygon(new_points)
-        self.hit_box_shape = self.shape
+
+
+class Cupboard(RectangularFurniture):
+    def __init__(self, x, y, angle, width, height, can_stand_on_carpet, open_angle=120, name=None):
+        assert 0 < open_angle < 270, "Can't open doors through cupboard wall"
+
+        self.open_angle = open_angle
+
+        self.pivot_door_1 = np.array([
+            [x + width / 2, y + height / 2]
+        ])
+        self.pivot_door_2 = np.array([
+            [x - width / 2, y + height / 2]
+        ])
+
+        self.difference_rectangles_door_1 = [
+            np.array([
+                [self.pivot_door_1[0, 0] - width / 2, self.pivot_door_1[0, 1]],
+                [self.pivot_door_1[0, 0] - width / 2, self.pivot_door_1[0, 1] - width / 2],
+                [self.pivot_door_1[0, 0] + width / 2, self.pivot_door_1[0, 1] - width / 2],
+                [self.pivot_door_1[0, 0] + width / 2, self.pivot_door_1[0, 1]]
+            ]),
+            np.array([
+                [self.pivot_door_1[0, 0] - width / 2, self.pivot_door_1[0, 1]],
+                [self.pivot_door_1[0, 0] - width / 2, self.pivot_door_1[0, 1] + width / 2],
+                [self.pivot_door_1[0, 0] + width / 2, self.pivot_door_1[0, 1] + width / 2],
+                [self.pivot_door_1[0, 0] + width / 2, self.pivot_door_1[0, 1]]
+            ])
+        ]
+
+        self.difference_rectangles_door_2 = [
+            np.array([
+                [self.pivot_door_2[0, 0] - width / 2, self.pivot_door_2[0, 1]],
+                [self.pivot_door_2[0, 0] - width / 2, self.pivot_door_2[0, 1] - width / 2],
+                [self.pivot_door_2[0, 0] + width / 2, self.pivot_door_2[0, 1] - width / 2],
+                [self.pivot_door_2[0, 0] + width / 2, self.pivot_door_2[0, 1]]
+            ]),
+            np.array([
+                [self.pivot_door_2[0, 0] - width / 2, self.pivot_door_2[0, 1]],
+                [self.pivot_door_2[0, 0] - width / 2, self.pivot_door_2[0, 1] + width / 2],
+                [self.pivot_door_2[0, 0] + width / 2, self.pivot_door_2[0, 1] + width / 2],
+                [self.pivot_door_2[0, 0] + width / 2, self.pivot_door_2[0, 1]]
+            ])
+        ]
+
+        self.difference_rectangles_door_1[1] = MatrixUtils.rotate_points(
+            self.difference_rectangles_door_1[1], self.open_angle, self.pivot_door_1
+        )
+
+        self.difference_rectangles_door_2[1] = MatrixUtils.rotate_points(
+            self.difference_rectangles_door_2[1], -self.open_angle, self.pivot_door_2
+        )
+
+        super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
+
+    def get_patch(self, **kwargs):
+        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
+                             fc=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']),
+                             ec=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']), alpha=0.9)
+        return patch
+
+    def update_polygon(self):
+        self.pivot_door_1 = MatrixUtils.rotate_points(self.pivot_door_1,
+                                                      self.angle,
+                                                      self.center)
+        self.pivot_door_2 = MatrixUtils.rotate_points(self.pivot_door_2,
+                                                      self.angle,
+                                                      self.center)
+
+        door_1_shape = Point(self.pivot_door_1[0]).buffer(self.width / 2)
+        door_2_shape = Point(self.pivot_door_2[0]).buffer(self.width / 2)
+
+        for i in range(len(self.difference_rectangles_door_1)):
+            self.difference_rectangles_door_1[i] = MatrixUtils.rotate_points(
+                self.difference_rectangles_door_1[i],
+                self.angle,
+                self.center
+            )
+
+            self.difference_rectangles_door_2[i] = MatrixUtils.rotate_points(
+                self.difference_rectangles_door_2[i],
+                self.angle,
+                self.center
+            )
+
+            polygon_hit_box_points_door_1 = Polygon(self.difference_rectangles_door_1[i])
+            polygon_hit_box_points_door_2 = Polygon(self.difference_rectangles_door_2[i])
+
+            door_1_shape = door_1_shape.difference(polygon_hit_box_points_door_1)
+            door_2_shape = door_2_shape.difference(polygon_hit_box_points_door_2)
+
+        new_points = MatrixUtils.rotate_points(self.points, self.angle)
+        self.shape = Polygon(new_points)
+        self.hit_box_shape = door_1_shape.union(door_2_shape).union(self.shape)
+
+
+class Sofa(RectangularFurniture):
+    def __init__(self, x, y, angle, width, height, can_stand_on_carpet, allowed_tv_angle=30, name=None):
+        super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
+        self.sight_vector = np.array(
+            [0, self.height]
+        )
+        self.sight_vector /= np.linalg.norm(self.sight_vector, ord=2)
+        self.allowed_tv_angle = allowed_tv_angle
+
+    def update_polygon(self):
+        super().update_polygon()
+        self.sight_vector = MatrixUtils.rotate_points(
+            self.sight_vector, self.angle, self.center
+        )
+
+    def can_see_tv(self):
+        if self.room is None:
+            warnings.warn("Sofa is not in the room")
+            return
+        if not self.room.has_tv():
+            warnings.warn("No TV found in the room")
+            return
+        tv = self.room.get_tv()
+        return (self._is_normal_face_visible(tv.tv_normal_vector, tv.center) and
+                self._are_edge_points_visible(tv.get_edge_tv_points()))
+
+    def _is_normal_face_visible(self, tv_normal_vector, tv_center):
+        tv_to_sofa_vector = self.center - tv_center
+        angle = MatrixUtils.get_angle_between_vectors(tv_to_sofa_vector, tv_normal_vector)
+        return angle < 90
+
+    def _are_edge_points_visible(self, tv_edge_points):
+        def _check_for_one_point(point, sofa_center, sofa_normal_vector, allowed_angle):
+            center_to_edge_point_vector = point - sofa_center
+            angle = MatrixUtils.get_angle_between_vectors(sofa_normal_vector, center_to_edge_point_vector)
+            return angle < allowed_angle
+
+        return (_check_for_one_point(tv_edge_points[0], self.center, self.sight_vector, self.allowed_tv_angle) and
+                _check_for_one_point(tv_edge_points[1], self.center, self.sight_vector, self.allowed_tv_angle))
+
+
+class Tv(RectangularFurniture):
+    def __init__(self, x, y, angle, width, height, tv_width, tv_thickness, can_stand_on_carpet, name=None):
+        assert tv_width <= width
+        self.tv_width = tv_width
+        self.tv_thickness = tv_thickness
+        self.tv_points = np.array([
+            [x - tv_width / 2, y + tv_thickness / 2],
+            [x - tv_width / 2, y - tv_thickness / 2],
+            [x + tv_width / 2, y - tv_thickness / 2],
+            [x + tv_width / 2, y + tv_thickness / 2]
+        ])
+        self.tv_shape = Polygon(self.tv_points)
+        self.tv_normal_vector = np.array([
+            [0, tv_thickness]
+        ], dtype=np.float32)
+        self.tv_normal_vector /= np.linalg.norm(self.tv_normal_vector, ord=2)
+
+        super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
+
+    def get_patch(self, **kwargs):
+        patch = PolygonPatch(self.shape, fc=kwargs.get(self.name, FURNITURE_COLORS['skin']),
+                             ec=kwargs.get(self.name, FURNITURE_COLORS['skin']), alpha=0.9)
+        tv_patch = PolygonPatch(self.tv_shape, fc=kwargs.get(self.name + '_tv', 'black'),
+                                ec=kwargs.get(self.name + '_tv', 'black'),
+                                alpha=0.5)
+        return [patch, tv_patch]
+
+    def update_polygon(self):
+        super().update_polygon()
+        self.tv_points = np.array([(self.x - self.tv_width / 2, self.y - self.tv_thickness / 2),
+                                   (self.x + self.tv_width / 2, self.y - self.tv_thickness / 2),
+                                   (self.x + self.tv_width / 2, self.y + self.tv_thickness / 2),
+                                   (self.x - self.tv_width / 2, self.y + self.tv_thickness / 2)])
+        new_points = MatrixUtils.rotate_points(self.tv_points, self.angle)
+        self.tv_shape = Polygon(new_points)
+        self.tv_normal_vector = MatrixUtils.rotate_points(self.tv_normal_vector, self.angle, self.center)
+
+    def get_edge_tv_points(self):
+        return self.tv_points[[0, 3]]
 
 
 class Carpet(RectangularFurniture):
