@@ -4,6 +4,7 @@ from descartes import PolygonPatch
 from shapely.geometry import Polygon
 
 from src.furnishing.drawable import Drawable
+from src.furnishing.furniture_collection import Tv
 
 
 class Room(Drawable):
@@ -36,6 +37,15 @@ class Room(Drawable):
     def is_furniture_inside(self, furniture):
         return self.shape.contains(furniture)
 
+    def has_tv(self):
+        return any([isinstance(f, Tv) for f in self.furniture])
+
+    def get_tv(self):
+        for f in self.furniture:
+            if isinstance(f, Tv):
+                return f
+        return None
+
     @property
     def params_to_optimize(self):
         params = []
@@ -53,8 +63,8 @@ class RoomDrawer:
         self.ax.set_xlim(xmin=0, xmax=self.room.width)
         self.ax.set_ylim(ymin=0, ymax=self.room.height)
 
-    def draw_all(self):
+    def draw_all(self, **kwargs):
         self.room.draw(self.ax)
         for furniture in self.room.furniture:
-            furniture.draw(self.ax)
+            furniture.draw(self.ax, **kwargs)
         plt.show()
