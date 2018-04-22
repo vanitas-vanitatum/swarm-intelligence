@@ -17,13 +17,15 @@ FURNITURE_COLORS = {
 
 
 class BaseFurniture(Drawable, ABC):
-    def __init__(self, x, y, angle, is_optimasible):
+    def __init__(self, x, y, angle, can_stand_on_carpet, is_optimasible, name=None):
         self.params = np.array([x, y, angle])
         self.shape = None
         self.hit_box_shape = None
         self.room = None
         self.is_optimasible = is_optimasible
         self.base_color = np.array((0, 0, 0))
+        self.can_stand_on_carpet = can_stand_on_carpet
+        self.name = name or self.__class__.__name__.lower()
 
     def update_params(self, update):
         if self.is_optimasible:
@@ -59,6 +61,10 @@ class BaseFurniture(Drawable, ABC):
         self.params[2] = angle
 
     @property
+    def center(self):
+        return self.params[0:2]
+
+    @property
     def params_to_optimize(self):
         return self.params
 
@@ -90,12 +96,12 @@ class BaseFurniture(Drawable, ABC):
 
 class RectangularFurniture(BaseFurniture):
 
-    def __init__(self, x, y, angle, width, height, is_optimasible):
+    def __init__(self, x, y, angle, width, height, can_stand_on_carpet, is_optimasible, name=None):
         self.points = np.array([(x - width / 2, y - height / 2),
                                 (x + width / 2, y - height / 2),
                                 (x + width / 2, y + height / 2),
                                 (x - width / 2, y + height / 2)])
-        super().__init__(x, y, angle, is_optimasible)
+        super().__init__(x, y, angle, can_stand_on_carpet, is_optimasible, name)
         self.width = width
         self.height = height
 
@@ -117,8 +123,8 @@ class RectangularFurniture(BaseFurniture):
 
 
 class EllipseFurniture(BaseFurniture):
-    def __init__(self, x, y, angle, width, height, is_optimasible):
-        super().__init__(x, y, angle, is_optimasible)
+    def __init__(self, x, y, angle, width, height, can_stand_on_carpet, is_optimasible, name=None):
+        super().__init__(x, y, angle, can_stand_on_carpet, is_optimasible, name)
         self.base_point = (x, y)
         self.width = width
         self.height = height
@@ -140,5 +146,16 @@ class EllipseFurniture(BaseFurniture):
 
 
 class RoundedFurniture(EllipseFurniture):
-    def __init__(self, x, y, diameter, is_optimasible):
-        super().__init__(x, y, 0, diameter, diameter, is_optimasible)
+    def __init__(self, x, y, diameter, can_stand_on_carpet, is_optimasible, name=None):
+        super().__init__(x, y, 0, diameter, diameter, can_stand_on_carpet, is_optimasible, name)
+
+
+class RoundedCornersFurniture(RectangularFurniture):
+
+    def __init__(self, x, y, angle, width, height, can_stand_on_carpet, is_optimasible, name=None):
+        super().__init__(x, y, angle, width, height, can_stand_on_carpet, is_optimasible, name)
+
+    def update_polygon(self):
+        super().update_polygon()
+        self.shape = self.shape.buffer(-self.width / 3).buffer(self.width / 3)
+        self.hit_box_shape = self.shape
