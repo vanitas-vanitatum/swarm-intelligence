@@ -1,11 +1,12 @@
-import numpy as np
 import warnings
+
+import numpy as np
 from descartes import PolygonPatch
 from shapely.geometry import Polygon, Point
 
-from src.furnishing.furniture_construction import RectangularFurniture, FURNITURE_COLORS
+from src.common import SHOW_HIT_BOXES, ZERO_POINT, ZORDERS, get_hit_box_visualization
+from src.furnishing.furniture_construction import RectangularFurniture, RoundedFurniture, FURNITURE_COLORS
 from src.furnishing.math_utils import MatrixUtils
-from src.common import SHOW_HIT_BOXES, ZERO_POINT
 
 
 def get_angle_to_fit_wall(x, y, room_width, room_height):
@@ -32,9 +33,12 @@ class Window(RectangularFurniture):
                          width, 0.5, False, False, name)
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
-                             fc=kwargs.get('window_color', 'black'),
-                             ec=kwargs.get('window_color', 'black'), alpha=0.3)
+        patch = [PolygonPatch(self.shape,
+                              fc=kwargs.get('window_color', 'blue'),
+                              ec=kwargs.get('window_color', 'blue'), alpha=1)]
+        if SHOW_HIT_BOXES:
+            patch.append(get_hit_box_visualization(self.hit_box_shape))
+
         return patch
 
     def update_polygon(self):
@@ -116,9 +120,11 @@ class Door(RectangularFurniture):
                          width, 0.5, False, False, name)
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
-                             fc=kwargs.get('door_color', 'black'),
-                             ec=kwargs.get('door_color', 'black'), alpha=0.9)
+        patch = [PolygonPatch(self.shape,
+                              fc=kwargs.get('door_color', 'black'),
+                              ec=kwargs.get('door_color', 'black'), alpha=1)]
+        if SHOW_HIT_BOXES:
+            patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
 
     def update_polygon(self):
@@ -196,9 +202,12 @@ class Cupboard(RectangularFurniture):
         super().__init__(x, y, angle, width, height, can_stand_on_carpet, True, name)
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape if not SHOW_HIT_BOXES else self.hit_box_shape,
-                             fc=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']),
-                             ec=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']), alpha=0.9)
+        patch = [PolygonPatch(self.shape,
+                              fc=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']),
+                              ec=kwargs.get('cupboard_color', FURNITURE_COLORS['gray']), alpha=1,
+                              zorder=ZORDERS['furniture'])]
+        if SHOW_HIT_BOXES:
+            patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
 
     def update_polygon(self):
@@ -265,6 +274,7 @@ class Sofa(RectangularFurniture):
     def _is_normal_face_visible(self, tv_normal_vector, tv_center):
         tv_to_sofa_vector = self.center - tv_center
         angle = MatrixUtils.get_angle_between_vectors(tv_to_sofa_vector, tv_normal_vector)
+
         return angle <= self.allowed_tv_angle
 
     def _are_edge_points_visible(self, tv_edge_points):
@@ -298,11 +308,16 @@ class Tv(RectangularFurniture):
 
     def get_patch(self, **kwargs):
         patch = PolygonPatch(self.shape, fc=kwargs.get(self.name, FURNITURE_COLORS['skin']),
-                             ec=kwargs.get(self.name, FURNITURE_COLORS['skin']), alpha=0.9)
+                             ec=kwargs.get(self.name, FURNITURE_COLORS['gray']), alpha=1,
+                             zorder=ZORDERS['furniture'])
         tv_patch = PolygonPatch(self.tv_shape, fc=kwargs.get(self.name + '_tv', 'black'),
                                 ec=kwargs.get(self.name + '_tv', 'black'),
-                                alpha=0.5)
-        return [patch, tv_patch]
+                                alpha=0.5, zorder=ZORDERS['things on furniture'])
+
+        patches = [patch, tv_patch]
+        if SHOW_HIT_BOXES:
+            patches.append(get_hit_box_visualization(self.hit_box_shape))
+        return patches
 
     def update_polygon(self):
         super().update_polygon()
@@ -319,5 +334,28 @@ class Tv(RectangularFurniture):
         return self.tv_points[[0, 3]]
 
 
-class Carpet(RectangularFurniture):
-    pass
+class Carpet(RoundedFurniture):
+    def __init__(self, room_width, room_height, diameter):
+        super().__init__(room_width / 2, room_height / 2, diameter, False, False, "carpet")
+
+    def get_patch(self, **kwargs):
+        patch = super().get_patch(**kwargs)
+        patch.zorder = ZORDERS['carpet']
+        patch.set_facecolor(kwargs.get('carpet_color', 'white'))
+        patch.set_edgecolor(kwargs.get('carpet_edge_color', 'gray'))
+        patch.set_alpha(1)
+        return patch
+
+    @property
+    def area(self):
+        return self.shape.area
+
+    @property
+    def diameter(self):
+        return self.width
+
+    @diameter.setter
+    def diameter(self, new_diameter):
+        self.width = new_diameter
+        self.height = new_diameter
+        self.update_polygon()
