@@ -8,4 +8,8 @@ class Drawable(ABC):
 
     def draw(self, ax, **kwargs):
         patch = self.get_patch(**kwargs)
-        ax.add_patch(patch)
+        if isinstance(patch, list) or isinstance(patch, tuple):
+            for p in patch:
+                ax.add_patch(p)
+        else:
+            ax.add_patch(patch)
