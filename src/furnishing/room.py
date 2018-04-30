@@ -5,7 +5,7 @@ from shapely.geometry import Polygon, Point
 
 from src.common import ZORDERS
 from src.furnishing.drawable import Drawable
-from src.furnishing.furniture_collection import Tv, Carpet, Window
+from src.furnishing.furniture_collection import Tv, Carpet, Window, Door
 
 
 class Room(Drawable):
@@ -36,8 +36,13 @@ class Room(Drawable):
             self.furniture.append(f)
 
     def are_all_furniture_inside(self):
+        res = []
         for f in self.furniture:
-            self.is_furniture_inside(f)
+            if isinstance(f, Door):
+                res.append(True)
+            else:
+                res.append(self.is_furniture_inside(f))
+        return all(res)
 
     def is_furniture_inside(self, furniture):
         return self.shape.contains(furniture.occupied_area)
@@ -70,6 +75,15 @@ class Room(Drawable):
                 params.append(f.params_to_optimize)
         return np.array(params)
 
+    def apply_feature_vector(self, vector):
+        matrix = vector.reshape(-1, 3)
+        i = 0
+        for f in self.furniture:
+            if f.is_optimasible:
+                f.set_params(matrix[i,0],matrix[i,1],matrix[i,2])
+                f.update_polygon()
+                i+=1
+
     def are_furniture_ok(self):
         are_ok = True
         for f1 in self.furniture:
@@ -83,6 +97,29 @@ class Room(Drawable):
                 if not are_ok:
                     return False
         return True
+
+
+class RoomFitness:
+    def __init__(self, room, simple=False):
+        self.room = room
+        self.simple = simple
+
+    def fitness_function(self, solutions):
+        old_params = self.room.params_to_optimize
+        fitnesses = np.empty((solutions.shape[0], 1))
+        for i in range(solutions.shape[0]):
+            sol = solutions[i, :]
+            if self.simple:
+                for j in range(2,sol.shape[0],3):
+                    sol[j] = 0
+            self.room.apply_feature_vector(sol)
+            if self.room.are_furniture_ok():
+                fitnesses[i, 0] = -self.room.get_possible_carpet_radius()
+            else:
+                fitnesses[i, 0] = 1e15
+
+        self.room.apply_feature_vector(old_params)
+        return fitnesses
 
 
 class RoomDrawer:

@@ -43,7 +43,7 @@ class SwarmIntelligence:
         population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
         if self.constraints:
             for i in range(self.population_size):
-                while not self.constraints.check(population[i, :].reshape(1, -1)).all():
+                while not self.constraints.check(population[i, :].reshape(1, -1)):
                     population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
         self.population = population
 
@@ -75,7 +75,6 @@ class SwarmIntelligence:
         mask = ~self.constraints.check(population)
         fitness[mask, :] = 1e15  # np.inf
         return fitness
-
 
     def get_new_positions(self, step_number):
         raise NotImplementedError

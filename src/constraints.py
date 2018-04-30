@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from src.specification import Specification
+from src.furnishing.room import Room
 
 
 class BaseConstraint:
@@ -81,3 +82,23 @@ class MoreThanConstraint(BaseConstraint):
         #print(solution.shape)
         return np.all(solution > self.limit, axis=1)
 
+
+class RoomConstraint(BaseConstraint):
+
+    def __init__(self, room, simple=False):
+        self.room = room
+        self.simple = simple
+
+    def check(self, solutions):
+        res = np.empty((solutions.shape[0]))
+        old_sol = self.room.params_to_optimize
+
+        for i in range(solutions.shape[0]):
+            if self.simple:
+                for j in range(2, solutions.shape[1], 3):
+                    solutions[i, j] = 0
+            self.room.apply_feature_vector(solutions[i,:])
+            is_ok = self.room.are_furniture_ok() and self.room.are_all_furniture_inside()
+            res[i] = is_ok
+        self.room.apply_feature_vector(old_sol)
+        return res.astype(bool)

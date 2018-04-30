@@ -116,8 +116,10 @@ class Drawer2d(Callback):
         )
 
         plt.scatter(
-            dots_coordinates[0],
-            dots_coordinates[1],
+
+
+            xs,
+            ys,
             marker='x',
             linewidths=2,
             color='red',
@@ -142,3 +144,10 @@ class Drawer2d(Callback):
 
     def on_optimization_end(self):
         plt.ioff()
+
+
+class PrintLogCallback(Callback):
+
+    def on_epoch_end(self):
+        print('Epoch:', self.swarm_algorithm._step_number,
+              'Global Best:', self.swarm_algorithm.current_global_fitness)
