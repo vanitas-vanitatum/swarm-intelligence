@@ -22,9 +22,12 @@ class Michalewicz(Function):
         https://www.sfu.ca/~ssurjano/michal.html
         different with each dimensionality, not easy to determine
         """
-        return None
+        if nb_dimensions==2:
+            return np.asarray([[2.20, 1.57]])
+        else:
+            return None
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         dim = x.shape[axis]
         i = np.arange(1, dim+1, 1)

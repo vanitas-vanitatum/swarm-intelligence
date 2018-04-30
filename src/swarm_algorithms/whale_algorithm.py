@@ -5,8 +5,8 @@ import scipy.spatial.distance as dist
 
 
 class WhaleAlgorithm(SwarmIntelligence):
-    def __init__(self, population_size, nb_features, constraints, attenuation_of_medium,
-                 intensity_at_source, seed=None):
+    def __init__(self, population_size, nb_features, constraints, attenuation_of_medium=None,
+                 intensity_at_source=None, seed=None):
         super().__init__(population_size, nb_features, constraints, seed)
         self._eta = attenuation_of_medium
         self._rho_zero = intensity_at_source

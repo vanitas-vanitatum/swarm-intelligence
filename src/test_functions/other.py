@@ -12,7 +12,7 @@ class PermDBeta(Function):
     def minimal_value(self, nb_dimensions):
         return 0
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         dim = x.shape[axis]
         res = 0.
@@ -37,7 +37,7 @@ class StyblinskiTang(Function):
     def minimal_value(self, nb_dimensions):
         return -39.16599 * nb_dimensions
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         term1 = np.power(x, 4)
         term2 = 16 * np.square(x)
@@ -45,4 +45,4 @@ class StyblinskiTang(Function):
         return 0.5 * (term1 + term2 + term3).sum(axis=axis)
 
     def optimal_solution(self, nb_dimensions):
-        return -2.903534 * np.ones(1, nb_dimensions)
+        return -2.903534 * np.ones((1, nb_dimensions))

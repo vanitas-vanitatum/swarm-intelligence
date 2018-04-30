@@ -43,11 +43,11 @@ class SwarmIntelligence:
         population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
         if self.constraints:
             for i in range(self.population_size):
-                while not self.constraints.check(population[i, :]):
+                while not self.constraints.check(population[i, :].reshape(1, -1)).all():
                     population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
         self.population = population
 
-        fit_values = self.fit_function(population)
+        fit_values = self.calculate_fitness(population)
 
         self.local_best_solutions = population
         self.global_best_solution = population[np.argmin(fit_values[:, 0])]
@@ -58,7 +58,7 @@ class SwarmIntelligence:
         return population
 
     def update_best_local_global(self, population):
-        current_fitness = self.fit_function(population)
+        current_fitness = self.calculate_fitness(population)
         mask = current_fitness < self.current_local_fitness
 
         self.local_best_solutions = mask * population + (1 - mask) * self.local_best_solutions
@@ -69,6 +69,13 @@ class SwarmIntelligence:
         if best_solution_fitness < self.current_global_fitness:
             self.current_global_fitness = best_solution_fitness
             self.global_best_solution = population[np.argmin(current_fitness[:, 0])]
+
+    def calculate_fitness(self, population):
+        fitness = self.fit_function(population).reshape(self.population_size, 1)
+        mask = ~self.constraints.check(population)
+        fitness[mask, :] = 1e15  # np.inf
+        return fitness
+
 
     def get_new_positions(self, step_number):
         raise NotImplementedError

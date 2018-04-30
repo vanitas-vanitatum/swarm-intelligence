@@ -41,7 +41,7 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
         local_factor = self.lf_1 * phi_1 * (self.local_best_solutions - self.population)
         global_factor = self.lf_2 * phi_2 * (self.global_best_solution - self.population)
         v = self.inertia * self.population_velocities + local_factor + global_factor
-        return (self.divergence ** step) * v
+        return self.divergence * v
 
 
 class BasicPSO(ParticleSwarmOptimisation):
@@ -57,7 +57,7 @@ class BasicPSO(ParticleSwarmOptimisation):
 
 class InertiaPSO(ParticleSwarmOptimisation):
 
-    def __init__(self, population_size, nb_features, constraints, inertia=1.5,
+    def __init__(self, population_size, nb_features, constraints, inertia=0.5,
                  learning_factor_1=2, learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints,
                          inertia=inertia, divergence=1.,
@@ -68,7 +68,7 @@ class InertiaPSO(ParticleSwarmOptimisation):
 
 class DivergentPSO(ParticleSwarmOptimisation):
 
-    def __init__(self, population_size, nb_features, constraints, inertia=1.5, divergence=np.sqrt(2),
+    def __init__(self, population_size, nb_features, constraints, inertia=0.5, divergence=0.7289,
                  learning_factor_1=2, learning_factor_2=2, seed=None):
         super().__init__(population_size, nb_features, constraints,
                          inertia=inertia, divergence=divergence,

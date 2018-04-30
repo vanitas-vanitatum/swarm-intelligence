@@ -107,11 +107,12 @@ class Drawer2d(Callback):
             self.space_visualization_coordinates[1],
             self.contour_values,
             cmap=cm.coolwarm,
-            levels=range(
-                np.min(self.contour_values).astype(np.int),
-                np.max(self.contour_values).astype(np.int),
+            levels=np.arange(
+                np.min(self.contour_values).astype(np.float16),
+                np.max(self.contour_values).astype(np.float16),
                 self.isolines_spacing
-            )
+            ),
+            zorder=1
         )
 
         plt.scatter(
@@ -120,7 +121,8 @@ class Drawer2d(Callback):
             marker='x',
             linewidths=2,
             color='red',
-            s=100
+            s=100,
+            zorder=2
         )
 
         if self.last_population is not None:
