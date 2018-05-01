@@ -4,6 +4,9 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import numpy as np
 import matplotlib
+import pandas as pd
+import yaml
+#from collections import OrderedDict
 
 matplotlib.rcParams['xtick.direction'] = 'out'
 matplotlib.rcParams['ytick.direction'] = 'out'
@@ -151,3 +154,56 @@ class PrintLogCallback(Callback):
     def on_epoch_end(self):
         print('Epoch:', self.swarm_algorithm._step_number,
               'Global Best:', self.swarm_algorithm.current_global_fitness)
+
+
+class FileLogCallback(Callback):
+
+    NON_HYPERPARAMS = ['population', 'population_size',
+                       '_compiled', '_seed',
+                       '_rng', '_step_number',
+                       'fit_function',
+                       'global_best_solution',
+                       'local_best_solutions',
+                       'nb_features',
+                       'constraints',
+                       'current_global_fitness',
+                       'current_local_fitness']
+
+    def __init__(self, result_filename):
+        super().__init__()
+        self.log_df = pd.DataFrame(columns=['Epoch', 'Best Global Fitness', 'Worst Local Fitness'])
+        self.result_filename = result_filename
+
+    def on_epoch_end(self):
+        epoch = int(self.swarm_algorithm._step_number)
+        bgfit = self.swarm_algorithm.current_global_fitness
+        wlfit = np.max(self.swarm_algorithm.current_local_fitness)
+
+        self.log_df = self.log_df.append({'Epoch': epoch,
+                                          'Best Global Fitness': bgfit,
+                                          'Worst Local Fitness': wlfit},
+                                         ignore_index=True)
+
+    def on_optimization_end(self):
+        meta = {'FitFunction': self.swarm_algorithm.fit_function.__self__.__class__.__name__,
+                'Algorithm': self.swarm_algorithm.__class__.__name__,
+                'PopulationSize': self.swarm_algorithm.population_size,
+                'NbFeatures': self.swarm_algorithm.nb_features}
+
+        hyperparams = self.swarm_algorithm.__dict__.copy()
+        for k in self.NON_HYPERPARAMS:
+            hyperparams.pop(k)
+
+        for k in hyperparams:
+            hyperparams[k] = str(hyperparams[k])
+
+        meta['AlgorithmHyperparams'] = hyperparams
+        with open(self.result_filename + '-meta.yaml','w') as f:
+            yaml.dump(meta, f, default_flow_style=False)
+
+        self.log_df['Epoch'] = pd.to_numeric(self.log_df['Epoch'], downcast='integer')
+        self.log_df.to_csv(self.result_filename+'-log.csv', index=False)
+
+
+
+

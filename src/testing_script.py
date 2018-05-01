@@ -6,13 +6,14 @@ from src.test_functions.plate_shaped import Zakharov
 from src.test_functions.many_minima import Griewank, Ackley, Levy, Shwefel
 from src.test_functions.steep_ridges import Michalewicz
 from src.stop_conditions import AtLeastCondition,StepsNumberStopCondition, EarlyStoppingCondition
-from src.callbacks import Drawer2d, PrintLogCallback
+from src.callbacks import Drawer2d, PrintLogCallback, FileLogCallback
 from src.furnishing.furniture_collection import *
 from src.furnishing.furniture_construction import *
-from src.furnishing.room import Room, RoomDrawer, RoomFitness
+from src.furnishing.room import Room, RoomDrawer
+from src.test_functions.furnishing import RoomFitness
 
 room = Room(15, 15)
-#room.add_furniture(RectangularFurniture(7, 3, 90, 3, 3, False, True))
+room.add_furniture(RectangularFurniture(7, 3, 90, 3, 3, False, True))
 #room.add_furniture(Cupboard(4, 4, 180, 3, 2, False))
 
 sofa = Sofa(7, 7, 90, 4, 2, False)
