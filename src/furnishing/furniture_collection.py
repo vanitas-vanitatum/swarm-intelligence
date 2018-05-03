@@ -2,6 +2,8 @@ import warnings
 
 import numpy as np
 from descartes import PolygonPatch
+from matplotlib.patches import PathPatch
+from matplotlib.text import TextPath
 from shapely.geometry import Polygon, Point
 
 from src.common import SHOW_HIT_BOXES, ZERO_POINT, ZORDERS, get_hit_box_visualization
@@ -35,7 +37,8 @@ class Window(RectangularFurniture):
     def get_patch(self, **kwargs):
         patch = [PolygonPatch(self.shape,
                               fc=kwargs.get('window_color', 'blue'),
-                              ec=kwargs.get('window_color', 'blue'), alpha=1)]
+                              ec=kwargs.get('window_color', 'blue'), alpha=1),
+                 PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
         if SHOW_HIT_BOXES:
             patch.append(get_hit_box_visualization(self.hit_box_shape))
 
@@ -122,7 +125,8 @@ class Door(RectangularFurniture):
     def get_patch(self, **kwargs):
         patch = [PolygonPatch(self.shape,
                               fc=kwargs.get('door_color', 'black'),
-                              ec=kwargs.get('door_color', 'black'), alpha=1)]
+                              ec=kwargs.get('door_color', 'black'), alpha=1),
+                 PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
         if SHOW_HIT_BOXES:
             patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
@@ -205,7 +209,8 @@ class Cupboard(RectangularFurniture):
         patch = [PolygonPatch(self.shape,
                               fc=kwargs.get('cupboard_color', FURNITURE_COLORS['skin']),
                               ec=kwargs.get('cupboard_color', FURNITURE_COLORS['gray']), alpha=1,
-                              zorder=ZORDERS['furniture'])]
+                              zorder=ZORDERS['furniture']),
+                 PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
         if SHOW_HIT_BOXES:
             patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
@@ -314,7 +319,8 @@ class Tv(RectangularFurniture):
                                 ec=kwargs.get(self.name + '_tv', 'black'),
                                 alpha=0.5, zorder=ZORDERS['things on furniture'])
 
-        patches = [patch, tv_patch]
+        patches = [patch, tv_patch,
+                   PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
         if SHOW_HIT_BOXES:
             patches.append(get_hit_box_visualization(self.hit_box_shape))
         return patches
@@ -340,11 +346,13 @@ class Carpet(RoundedFurniture):
 
     def get_patch(self, **kwargs):
         patch = super().get_patch(**kwargs)
-        patch.zorder = ZORDERS['carpet']
-        patch.set_facecolor(kwargs.get('carpet_color', 'white'))
-        patch.set_edgecolor(kwargs.get('carpet_edge_color', 'gray'))
-        patch.set_alpha(1)
-        return patch
+        for p in patch:
+            p.zorder = ZORDERS['carpet']
+            p.set_facecolor(kwargs.get('carpet_color', 'white'))
+            p.set_edgecolor(kwargs.get('carpet_edge_color', 'gray'))
+            p.set_alpha(1)
+        return patch + [
+            PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
 
     @property
     def area(self):

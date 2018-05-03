@@ -100,7 +100,6 @@ class SwarmIntelligence:
 
         self._step_number = None
         all_callbacks.on_optimization_end()
-
         return self.global_best_solution
 
     @property

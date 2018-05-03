@@ -28,7 +28,7 @@ class Room(Drawable):
                              ec=kwargs.get('color', '#111111'),
                              zorder=ZORDERS['floor'])
         carpet = self.carpet.get_patch(**kwargs)
-        return [floor, carpet]
+        return [floor] + carpet
 
     def add_furniture(self, *furniture):
         for f in furniture:
@@ -101,8 +101,9 @@ class Room(Drawable):
 
 class RoomDrawer:
     def __init__(self, room, figsize=(16, 16)):
+        plt.ion()
         self.room = room
-        self.figure = plt.figure(figsize=figsize)
+        self.figure = plt.figure(1, figsize=figsize)
         self.ax = self.figure.add_subplot(111)
         self.ax.set_xlim(xmin=0, xmax=self.room.width)
         self.ax.set_ylim(ymin=0, ymax=self.room.height)
@@ -111,4 +112,8 @@ class RoomDrawer:
         self.room.draw(self.ax)
         for furniture in self.room.furniture:
             furniture.draw(self.ax, **kwargs)
-        plt.show()
+        self.figure.canvas.draw()
+        self.figure.show()
+
+    def update(self):
+        self.figure.canvas.draw()

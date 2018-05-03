@@ -1,12 +1,13 @@
-from mpl_toolkits.mplot3d import Axes3D
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FormatStrFormatter
-import numpy as np
 import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import yaml
-#from collections import OrderedDict
+from matplotlib import cm
+
+from src.furnishing.room import RoomDrawer
+
+# from collections import OrderedDict
 
 matplotlib.rcParams['xtick.direction'] = 'out'
 matplotlib.rcParams['ytick.direction'] = 'out'
@@ -120,7 +121,6 @@ class Drawer2d(Callback):
 
         plt.scatter(
 
-
             xs,
             ys,
             marker='x',
@@ -157,7 +157,6 @@ class PrintLogCallback(Callback):
 
 
 class FileLogCallback(Callback):
-
     NON_HYPERPARAMS = ['population', 'population_size',
                        '_compiled', '_seed',
                        '_rng', '_step_number',
@@ -198,12 +197,8 @@ class FileLogCallback(Callback):
             hyperparams[k] = str(hyperparams[k])
 
         meta['AlgorithmHyperparams'] = hyperparams
-        with open(self.result_filename + '-meta.yaml','w') as f:
+        with open(self.result_filename + '-meta.yaml', 'w') as f:
             yaml.dump(meta, f, default_flow_style=False)
 
         self.log_df['Epoch'] = pd.to_numeric(self.log_df['Epoch'], downcast='integer')
-        self.log_df.to_csv(self.result_filename+'-log.csv', index=False)
-
-
-
-
+        self.log_df.to_csv(self.result_filename + '-log.csv', index=False)
