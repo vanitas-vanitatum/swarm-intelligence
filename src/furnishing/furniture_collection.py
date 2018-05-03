@@ -30,7 +30,7 @@ class Window(RectangularFurniture):
         self.view_depth = view_depth
 
         super().__init__(x, y, get_angle_to_fit_wall(x, y, room_width, room_height),
-                         width, 0.5, False, False, name)
+                         width, 0.5, True, False, name)
 
     def get_patch(self, **kwargs):
         patch = [PolygonPatch(self.shape,
@@ -117,7 +117,7 @@ class Door(RectangularFurniture):
         )
 
         super().__init__(x, y, get_angle_to_fit_wall(x, y, room_width, room_height),
-                         width, 0.5, False, False, name)
+                         width, 0.5, True, False, name)
 
     def get_patch(self, **kwargs):
         patch = [PolygonPatch(self.shape,

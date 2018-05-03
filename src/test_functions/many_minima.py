@@ -16,9 +16,9 @@ class Ackley(Function):
         return 0.0
 
     def optimal_solution(self, nb_dimensions):
-        return np.zeros(1, nb_dimensions)
+        return np.zeros((1, nb_dimensions))
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         factor1 = np.sqrt(1. * np.square(x).sum(axis=axis) / x.shape[axis])
         factor1 = -self.a * np.exp(-self.b * factor1)
@@ -38,9 +38,9 @@ class Shwefel(Function):
         return 0.0
 
     def optimal_solution(self, nb_dimensions):
-        return np.ones(1, nb_dimensions) * 420.9687
+        return np.ones((1, nb_dimensions)) * 420.9687
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         param = 418.9829
         sqrt_abs = np.sqrt(np.abs(x))
@@ -56,7 +56,7 @@ class Griewank(Function):
     def minimal_value(self, nb_dimensions):
         return 0.0
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         dim = x.shape[axis]
         sumterm = (np.square(x) / 4000.).sum(axis=axis)
@@ -66,7 +66,7 @@ class Griewank(Function):
         return sumterm - prodterm + 1
 
     def optimal_solution(self, nb_dimensions):
-        return np.zeros(1, nb_dimensions)
+        return np.zeros((1, nb_dimensions))
 
 
 class Levy(Function):
@@ -77,7 +77,7 @@ class Levy(Function):
     def minimal_value(self, nb_dimensions):
         return 0.0
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         w = 1 + ((x - 1) / 4.)
 
@@ -93,4 +93,4 @@ class Levy(Function):
         return term1 + sumterm + (term3 * term4)
 
     def optimal_solution(self, nb_dimensions):
-        return np.ones(1, nb_dimensions)
+        return np.ones((1, nb_dimensions))

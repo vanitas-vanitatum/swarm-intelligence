@@ -37,3 +37,11 @@ class EarlyStoppingCondition(Specification):
 
         return self.nb_steps_without_improvement > self.patience
 
+
+class AtLeastCondition(Specification):
+
+    def __init__(self, required_fitness):
+        self.epsilon = required_fitness
+
+    def check(self, swarm_algorithm):
+        return swarm_algorithm.current_global_fitness <= self.epsilon

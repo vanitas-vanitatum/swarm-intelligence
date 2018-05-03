@@ -9,7 +9,7 @@ class Rosenbrock(Function):
     def minimal_value(self, nb_dimensions):
         return 0.0
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         square_x = np.square(x)
         term1 = 100. * np.square(x[:, 1:] - square_x[:, :-1])
@@ -17,7 +17,7 @@ class Rosenbrock(Function):
         return (term1 + square_x_1[:, :-1]).sum(axis=axis)
 
     def optimal_solution(self, nb_dimensions):
-        return np.ones(1, nb_dimensions)
+        return np.ones((1, nb_dimensions))
 
 
 class DixonPrice(Function):
@@ -28,7 +28,7 @@ class DixonPrice(Function):
     def minimal_value(self, nb_dimensions):
         return 0.0
 
-    def fitness_function(self, x, axis=1):
+    def fitness_function_implementation(self, x, axis=1):
         x = np.asarray(x)
         dim = x.shape[axis]
         term1 = np.square(x[:, 0] - 1)

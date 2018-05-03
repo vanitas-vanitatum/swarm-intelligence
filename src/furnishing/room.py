@@ -5,7 +5,7 @@ from shapely.geometry import Polygon, Point
 
 from src.common import ZORDERS
 from src.furnishing.drawable import Drawable
-from src.furnishing.furniture_collection import Tv, Carpet, Window
+from src.furnishing.furniture_collection import Tv, Carpet, Window, Door
 
 
 class Room(Drawable):
@@ -36,8 +36,13 @@ class Room(Drawable):
             self.furniture.append(f)
 
     def are_all_furniture_inside(self):
+        res = []
         for f in self.furniture:
-            self.is_furniture_inside(f)
+            if isinstance(f, Door):
+                res.append(True)
+            else:
+                res.append(self.is_furniture_inside(f))
+        return all(res)
 
     def is_furniture_inside(self, furniture):
         return self.shape.contains(furniture.occupied_area)
@@ -69,6 +74,15 @@ class Room(Drawable):
             if f.is_optimasible:
                 params.append(f.params_to_optimize)
         return np.array(params)
+
+    def apply_feature_vector(self, vector):
+        matrix = vector.reshape(-1, 3)
+        i = 0
+        for f in self.furniture:
+            if f.is_optimasible:
+                f.set_params(matrix[i,0],matrix[i,1],matrix[i,2])
+                f.update_polygon()
+                i+=1
 
     def are_furniture_ok(self):
         are_ok = True
