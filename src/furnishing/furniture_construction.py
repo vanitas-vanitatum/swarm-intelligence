@@ -5,6 +5,8 @@ import shapely
 import shapely.affinity
 import shapely.geometry
 from descartes import PolygonPatch
+from matplotlib.patches import PathPatch
+from matplotlib.text import TextPath
 from shapely.geometry import Polygon, Point
 
 from src.common import ZORDERS, SHOW_HIT_BOXES, get_hit_box_visualization
@@ -115,7 +117,8 @@ class RectangularFurniture(BaseFurniture):
     def get_patch(self, **kwargs):
         patch = [PolygonPatch(self.shape, fc=kwargs.get('color', FURNITURE_COLORS['skin']),
                               ec=kwargs.get('color', FURNITURE_COLORS['gray']),
-                              zorder=ZORDERS['furniture'])]
+                              zorder=ZORDERS['furniture']),
+                 PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
         if SHOW_HIT_BOXES:
             patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
@@ -140,8 +143,11 @@ class EllipseFurniture(BaseFurniture):
         self.update_polygon()
 
     def get_patch(self, **kwargs):
-        patch = PolygonPatch(self.shape, fc=kwargs.get('color', FURNITURE_COLORS['skin']),
-                             ec=kwargs.get('color', FURNITURE_COLORS['gray']))
+        patch = [PolygonPatch(self.shape, fc=kwargs.get('color', FURNITURE_COLORS['skin']),
+                              ec=kwargs.get('color', FURNITURE_COLORS['gray'])),
+                 PathPatch(TextPath((self.x, self.y), self.name, size=0.5), fc='black', ec='black')]
+        if SHOW_HIT_BOXES:
+            patch.append(get_hit_box_visualization(self.hit_box_shape))
         return patch
 
     def update_polygon(self):

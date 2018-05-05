@@ -35,7 +35,8 @@ drawer.draw_all(
 bound = [(0,15),(0,15),(-360,360)]* len(room.params_to_optimize)
 func = rfit
 eta, rho = WhaleAlgorithm.get_optimal_eta_and_rho_zero(bound)
-alg = WhaleAlgorithm(10, len(room.params_to_optimize.flatten()), RoomConstraint(room), eta, rho)
+# alg = WhaleAlgorithm(10, len(room.params_to_optimize.flatten()), RoomConstraint(room), eta, rho)
+alg = QuantumDeltaParticleSwarmOptimization(50, len(room.params_to_optimize.flatten()), RoomConstraint(room), 1)
 #alg = DivergentPSO(10,2, cc, 2.5, 0.7289, 10, 2)
 alg.compile(func.fitness_function, bound)
 print(alg.current_global_fitness)
