@@ -5,8 +5,6 @@ import pandas as pd
 import yaml
 from matplotlib import cm
 
-from src.furnishing.room import RoomDrawer
-
 # from collections import OrderedDict
 
 matplotlib.rcParams['xtick.direction'] = 'out'
@@ -202,3 +200,21 @@ class FileLogCallback(Callback):
 
         self.log_df['Epoch'] = pd.to_numeric(self.log_df['Epoch'], downcast='integer')
         self.log_df.to_csv(self.result_filename + '-log.csv', index=False)
+
+
+class ParamStatsStoreCallback(Callback):
+    def __init__(self):
+        super().__init__()
+        self.last_epoch = 0
+        self.best_fitness = np.inf
+        self.worst_fitness = -np.inf
+        self.average_fitness = np.inf
+
+    def on_epoch_end(self):
+        self.last_epoch = int(self.swarm_algorithm._step_number)
+        self.best_fitness = min(self.swarm_algorithm.current_global_fitness, self.best_fitness)
+        self.worst_fitness = max(np.max(self.swarm_algorithm.current_local_fitness), self.worst_fitness)
+        self.average_fitness = min(self.average_fitness, np.mean(self.swarm_algorithm.current_local_fitness))
+
+    def get_params(self):
+        return [self.last_epoch, self.best_fitness, self.worst_fitness, self.average_fitness]
