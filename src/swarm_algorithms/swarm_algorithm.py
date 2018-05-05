@@ -37,6 +37,7 @@ class SwarmIntelligence:
         self._compiled = True
 
     def populate_swarm(self, spawn_boundaries):
+        self._step_number = 0
         spawn_boundaries = np.array(spawn_boundaries)
         minimums = spawn_boundaries[:, 0]
         maxes = spawn_boundaries[:, 1]
@@ -85,7 +86,6 @@ class SwarmIntelligence:
 
     def go_swarm_go(self, stop_condition, callbacks=None):
         assert self.is_compiled, "Algorithm is not compiled, use `compile` method"
-        self._step_number = 0
         all_callbacks = CallbackContainer(callbacks)
         all_callbacks.initialize_callback(self)
 
@@ -98,7 +98,6 @@ class SwarmIntelligence:
             self._step_number += 1
             all_callbacks.on_epoch_end()
 
-        self._step_number = None
         all_callbacks.on_optimization_end()
         return self.global_best_solution
 
