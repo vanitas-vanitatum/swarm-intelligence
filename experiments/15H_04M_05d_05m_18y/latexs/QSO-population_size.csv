@@ -1,0 +1,26 @@
+\begin{tabular}{rrrrll}
+\toprule
+ dimension2\_mean &  dimension2\_std &  dimension10\_mean &  dimension10\_std & param\_value &       param\_name \\
+\midrule
+         32.7651 &         98.2952 &         2112.7491 &        1309.1871 &          10 &  population\_size \\
+          0.0000 &          0.0000 &          137.6239 &         220.3074 &          20 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          30 &  population\_size \\
+          0.0000 &          0.0000 &           42.3079 &         126.9238 &          40 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          50 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          60 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          70 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          80 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &          90 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         100 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         110 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         120 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         130 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         140 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         150 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         160 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         170 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         180 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         190 &  population\_size \\
+          0.0000 &          0.0000 &            0.0000 &           0.0000 &         200 &  population\_size \\
+\bottomrule
+\end{tabular}
