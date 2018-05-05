@@ -15,7 +15,10 @@ class Michalewicz(Function):
         different with each dimensionality, not easy to determine
         :param nb_dimensions:
         """
-        return None
+        if nb_dimensions==2:
+            return -1.8013
+        else:
+            return None
 
     def optimal_solution(self, nb_dimensions):
         """

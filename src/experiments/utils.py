@@ -15,8 +15,10 @@ def ensure_dir(dir):
         os.makedirs(dir)
 
 
-def get_experiment_dir():
+def get_experiment_dir(comparison_dir=False):
     timestamp = datetime.datetime.now().strftime('%HH_%MM_%dd_%mm_%yy')
+    if comparison_dir:
+        timestamp += '_comparison'
     joined = os.path.join(EXPERIMENTS_DIR, timestamp)
     ensure_dir(joined)
     csv_dir = os.path.join(joined, 'csvs')
