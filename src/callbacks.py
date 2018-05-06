@@ -1,10 +1,12 @@
+import os.path as osp
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
-import os.path as osp
 from matplotlib import cm
+
 from src.furnishing.room import RoomDrawer
 
 # from collections import OrderedDict
@@ -228,12 +230,12 @@ class EpochLoggerCallback(Callback):
         self.logger = pd.DataFrame(columns=['epoch', 'best', 'avg', 'worst'])
 
     def on_epoch_end(self):
-        self.logger.append({
+        self.logger = self.logger.append({
             'epoch': self.swarm_algorithm._step_number,
             'best': self.swarm_algorithm.current_global_fitness,
             'avg': np.mean(self.swarm_algorithm.current_local_fitness),
             'worst': np.max(self.swarm_algorithm.current_local_fitness)
-        })
+        }, ignore_index=True)
 
 
 class RoomDrawerCallback(Callback):
@@ -251,7 +253,6 @@ class RoomDrawerCallback(Callback):
 
     def on_epoch_end(self):
         if self.counter % self.epoch_break == 0:
-
             old_params = self.room.params_to_optimize
             new_params = self.swarm_algorithm.global_best_solution
             self.room.apply_feature_vector(new_params)
@@ -262,4 +263,3 @@ class RoomDrawerCallback(Callback):
             self.room.update_carpet_diameter()
             self.drawer.clear()
         self.counter += 1
-

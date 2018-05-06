@@ -218,7 +218,6 @@ class Cupboard(RectangularFurniture):
     def update_polygon(self):
         super().update_polygon()
 
-
         self.pivot_door_1 = np.array([
             [self.x + self.width / 2, self.y + self.height / 2]
         ])

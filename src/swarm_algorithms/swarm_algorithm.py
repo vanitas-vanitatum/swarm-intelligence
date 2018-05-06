@@ -51,8 +51,11 @@ class SwarmIntelligence:
             population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
             if self.constraints:
                 for i in range(self.population_size):
+                    counter = 0
                     while not self.constraints.check(population[i, :].reshape(1, -1)):
                         population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
+                        counter += 1
+                    print('Ok', counter)
         self.population = population
 
         fit_values = self.calculate_fitness(population)

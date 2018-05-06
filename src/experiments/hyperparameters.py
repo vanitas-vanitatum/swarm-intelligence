@@ -5,11 +5,11 @@ import pandas as pd
 
 from src.callbacks import ParamStatsStoreCallback, EpochLoggerCallback
 from src.constraints import LessThanConstraint, MoreThanConstraint, RoomConstraint
+from src.experiments.utils import SAMPLES_PATH
 from src.experiments.utils import get_experiment_dir
-from src.furnishing.furniture_collection import *
-from src.furnishing.furniture_construction import *
 from src.furnishing.room import *
-from src.stop_conditions import EarlyStoppingCondition
+from src.furnishing.room_utils import load_example_positions_for_example_room, get_example_room
+from src.stop_conditions import EarlyStoppingCondition, StepsNumberStopCondition
 from src.swarm_algorithms import *
 from src.test_functions import Ackley, RoomFitness
 
@@ -37,7 +37,7 @@ WHALE_PARAMS = {
 
 TESTED_FUNCTION = Ackley()
 STEPS_NUMBER = 300
-POPULATION_SIZE = 50
+POPULATION_SIZE = 200
 RUN_TIMES = 10
 PATIENCE = 30
 
@@ -168,58 +168,41 @@ def test(test_method=test_single):
 
 
 def get_room_boundaries(room):
-    return np.array([(0, room.width), (0, room.height), (-360, 360)] * len(room.params_to_optimize))
+    return np.array([(0, 1), (0, 1), (-1, 1)] * len(room.params_to_optimize))
 
 
 def get_algorithms_with_optimal_params(room):
     nb_features = len(room.params_to_optimize.flatten())
     constraints = RoomConstraint(room)
-    common_population_size = 300
+    common_population_size = 200
     alg = OrderedDict({
         ParticleSwarmOptimisation: dict(
             population_size=common_population_size,
             nb_features=nb_features,
             constraints=constraints,
-            inertia=0.3579,
+            inertia=0.6158,
             divergence=0.7289,
-            learning_factor_1=1.5,
-            learning_factor_2=9.5,
+            learning_factor_1=3.0,
+            learning_factor_2=4.0,
             seed=None
         ),
         WhaleAlgorithm: dict(
             population_size=common_population_size,
             nb_features=nb_features,
             constraints=constraints,
-            attenuation_of_medium=9.4789,
-            intensity_at_source=8.9579,
+            attenuation_of_medium=7.3947,
+            intensity_at_source=1.6632,
             seed=None
         ),
         QuantumDeltaParticleSwarmOptimization: dict(
             population_size=POPULATION_SIZE,
             nb_features=nb_features,
             constraints=constraints,
-            delta_potential_length_parameter=7.9158,
+            delta_potential_length_parameter=5.3105,
             seed=None
         )
     })
     return alg
-
-
-def get_example_room():
-    room = Room(15, 15)
-    room.add_furniture(RectangularFurniture(7, 3, 90, 3, 3, False, True))
-    room.add_furniture(Cupboard(3, 12, 180, 2, 2, False))
-
-    sofa = Sofa(5.5, 7, 90, 4, 2, False)
-    tv = Tv(10.5, 7, -90, 5, 2, 3, 1, False, name='tv')
-
-    room.add_furniture(RoundedCornersFurniture(7, 13, 35, 1, 1, True, True))
-    room.add_furniture(Window(15, 7, room.width, room.height, 4))
-    room.add_furniture(sofa)
-    room.add_furniture(Door(0, 7, room.width, room.height, 4))
-    room.add_furniture(tv)
-    room.update_carpet_diameter()
-    return room
 
 
 def test_room_optimalization():
@@ -242,24 +225,26 @@ def test_room_optimalization():
             print(f'\rRun: {_ + 1}/{RUN_TIMES}', end='')
             alg = alg_constructor(**param)
             room = get_example_room()
+            templates = load_example_positions_for_example_room(SAMPLES_PATH)
             rfit = RoomFitness(room)
             boundaries = get_room_boundaries(room)
-            alg.compile(rfit, boundaries)
-            epoch_logger_callback = EpochLoggerCallback()
-            alg.go_swarm_go(EarlyStoppingCondition(PATIENCE), [epoch_logger_callback])
 
+            alg.compile(rfit.fitness_function, boundaries, templates)
+            epoch_logger_callback = EpochLoggerCallback()
+            solution = alg.go_swarm_go(EarlyStoppingCondition(PATIENCE).maybe(StepsNumberStopCondition(500)),
+                                       [epoch_logger_callback])
+            room.apply_feature_vector(solution)
             carpet_size.append(room.get_possible_carpet_radius())
             epochs.append(alg._step_number)
             if alg.current_global_fitness < current_best:
                 current_best = alg.current_global_fitness
                 to_log = epoch_logger_callback.logger
         print()
-        plot_logging_data.append({
-            'algorithm': name,
-            'epochs': to_log['epochs'],
+        plot_logging_data = plot_logging_data.append(pd.DataFrame({
+            'algorithm': pd.Series(data=[name] * len(to_log['epoch'])),
+            'epochs': to_log['epoch'],
             'carpet_size': to_log['best']
-        }, ignore_index=True)
-
+        }), ignore_index=True)
         logger = logger.append({'algorithm': name,
                                 'epochs_mean': np.mean(epochs),
                                 'epochs_std': np.std(epochs),
@@ -270,7 +255,7 @@ def test_room_optimalization():
 
     logger.to_csv(os.path.join(csv_dir, 'room-optimization.csv'), index=False,
                   float_format='%.4f')
-    plot_logging_data.to_csv(csv_dir, 'plot-example-optimization.csv', index=False)
+    plot_logging_data.to_csv(os.path.join(csv_dir, 'plot-example-optimization.csv'), index=False)
     logger.to_latex(os.path.join(latex_dir, 'room-optimization.tex'), index=False,
                     float_format='%.4f')
 

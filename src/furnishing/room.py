@@ -1,11 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import shapely.errors
 from descartes import PolygonPatch
 from shapely.geometry import Polygon, Point
 
 from src.common import ZORDERS
 from src.furnishing.drawable import Drawable
-from src.furnishing.furniture_collection import Tv, Carpet, Window, Door
+from src.furnishing.furniture_collection import Tv, Carpet, Window, Door, Sofa
 
 
 class Room(Drawable):
@@ -22,6 +23,8 @@ class Room(Drawable):
         self.shape = Polygon(points)
         self.carpet = Carpet(width, height, 10)
         self.carpet_center = Point(np.array([width / 2, height / 2]))
+        self.tvs = []
+        self.sofas = []
 
     def get_patch(self, **kwargs):
         floor = PolygonPatch(self.shape, fc=kwargs.get('color', '#dddddd'),
@@ -34,6 +37,10 @@ class Room(Drawable):
         for f in furniture:
             f.room = self
             self.furniture.append(f)
+            if isinstance(f, Sofa):
+                self.sofas.append(f)
+            if isinstance(f, Tv):
+                self.tvs.append(f)
 
     def are_all_furniture_inside(self):
         res = []
@@ -56,6 +63,18 @@ class Room(Drawable):
                 return f
         return None
 
+    def all_sofas_see_any_tv(self):
+        print(len(self.sofas), len(self.tvs))
+        for sofa in self.sofas:
+            is_sofa_ok = False
+            for tv in self.tvs:
+                if sofa.can_see_tv(tv):
+                    is_sofa_ok = True
+                    break
+            if not is_sofa_ok:
+                return False
+        return True
+
     def get_possible_carpet_radius(self):
         lowest_dist = np.inf
         for f in self.furniture:
@@ -72,36 +91,48 @@ class Room(Drawable):
         params = []
         for f in self.furniture:
             if f.is_optimasible:
+                normalized_params = f.params_to_optimize
+                normalized_params[0] /= self.width
+                normalized_params[1] /= self.height
+                normalized_params[2] /= 360
                 params.append(f.params_to_optimize)
         return np.array(params)
 
     def apply_feature_vector(self, vector):
-        matrix = vector.reshape(-1, 3)
-        i = 0
-        for f in self.furniture:
-            if f.is_optimasible:
-                f.set_params(matrix[i, 0], matrix[i, 1], matrix[i, 2])
-                f.update_polygon()
-                i += 1
+        try:
+            matrix = vector.reshape(-1, 3)
+            i = 0
+            for f in self.furniture:
+                if f.is_optimasible:
+                    f.set_params(matrix[i, 0] * self.width, matrix[i, 1] * self.height, matrix[i, 2] * 360)
+                    f.update_polygon()
+                    i += 1
+        except shapely.errors.TopologicalError as e:
+            pass
+
+    def normalize_templates(self, templates):
+        templates[:, 0::3] /= self.width
+        templates[:, 1::3] /= self.height
+        templates[:, 2::3] /= 360
+        return templates
 
     def are_furniture_ok(self):
-        are_ok = True
+        # if not self.all_sofas_see_any_tv():
+        #     return False
         for f1 in self.furniture:
+            if not (isinstance(f1, Window) or isinstance(f1, Door)
+                    or self.is_furniture_inside(f1)):
+                return False
             for f2 in self.furniture:
                 if f1 == f2:
                     continue
-                are_ok = (are_ok
-                          and (isinstance(f1, Window)
-                               or isinstance(f1, Door) or self.is_furniture_inside(
-                                    f1))  # windows excluded due to exceptional hit box
-                          and not f1.intersects(f2))
-                if not are_ok:
+                if f1.intersects(f2):
                     return False
         return True
 
 
 class RoomDrawer:
-    def __init__(self, room, figsize=(16, 16)):
+    def __init__(self, room, figsize=(8, 8)):
         plt.ion()
         self.room = room
         self.figure = plt.figure(1, figsize=figsize)
