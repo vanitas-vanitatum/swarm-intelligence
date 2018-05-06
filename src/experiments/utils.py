@@ -5,6 +5,7 @@ PROJECT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir
                            os.pardir)
 
 EXPERIMENTS_DIR = os.path.join(PROJECT_DIR, 'experiments')
+SAMPLES_PATH = os.path.join(PROJECT_DIR, 'src', 'furnishing', 'room_samples.pkl')
 
 if not os.path.exists(EXPERIMENTS_DIR):
     os.makedirs(EXPERIMENTS_DIR)

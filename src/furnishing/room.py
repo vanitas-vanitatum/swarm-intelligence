@@ -38,7 +38,7 @@ class Room(Drawable):
     def are_all_furniture_inside(self):
         res = []
         for f in self.furniture:
-            if isinstance(f, Door):
+            if isinstance(f, Door) or isinstance(f, Window):
                 res.append(True)
             else:
                 res.append(self.is_furniture_inside(f))
@@ -80,9 +80,9 @@ class Room(Drawable):
         i = 0
         for f in self.furniture:
             if f.is_optimasible:
-                f.set_params(matrix[i,0],matrix[i,1],matrix[i,2])
+                f.set_params(matrix[i, 0], matrix[i, 1], matrix[i, 2])
                 f.update_polygon()
-                i+=1
+                i += 1
 
     def are_furniture_ok(self):
         are_ok = True
@@ -91,8 +91,9 @@ class Room(Drawable):
                 if f1 == f2:
                     continue
                 are_ok = (are_ok
-                          and (not isinstance(f1, Window),
-                               self.is_furniture_inside(f1))  # windows excluded due to exceptional hit box
+                          and (isinstance(f1, Window)
+                               or isinstance(f1, Door) or self.is_furniture_inside(
+                                    f1))  # windows excluded due to exceptional hit box
                           and not f1.intersects(f2))
                 if not are_ok:
                     return False
@@ -115,5 +116,14 @@ class RoomDrawer:
         self.figure.canvas.draw()
         self.figure.show()
 
-    def update(self):
+    def update(self, **kwargs):
+        self.ax.set_xlim(xmin=0, xmax=self.room.width)
+        self.ax.set_ylim(ymin=0, ymax=self.room.height)
+        self.room.draw(self.ax)
+        for furniture in self.room.furniture:
+            furniture.draw(self.ax, **kwargs)
         self.figure.canvas.draw()
+
+    def clear(self):
+        plt.pause(0.01)
+        self.ax.clear()

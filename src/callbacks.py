@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
+import os.path as osp
 from matplotlib import cm
+from src.furnishing.room import RoomDrawer
 
 # from collections import OrderedDict
 
@@ -218,3 +220,46 @@ class ParamStatsStoreCallback(Callback):
 
     def get_params(self):
         return [self.last_epoch, self.best_fitness, self.worst_fitness, self.average_fitness]
+
+
+class EpochLoggerCallback(Callback):
+    def __init__(self):
+        super().__init__()
+        self.logger = pd.DataFrame(columns=['epoch', 'best', 'avg', 'worst'])
+
+    def on_epoch_end(self):
+        self.logger.append({
+            'epoch': self.swarm_algorithm._step_number,
+            'best': self.swarm_algorithm.current_global_fitness,
+            'avg': np.mean(self.swarm_algorithm.current_local_fitness),
+            'worst': np.max(self.swarm_algorithm.current_local_fitness)
+        })
+
+
+class RoomDrawerCallback(Callback):
+    def __init__(self, room, folder_output, epoch_break=4):
+        super().__init__()
+        self.room = room
+        self.epoch_break = epoch_break
+        self.counter = 0
+        self.folder_output = folder_output
+        plt.ion()
+        self.drawer = RoomDrawer(room)
+
+    def on_optimization_start(self):
+        self.drawer.draw_all(tv_tv='yellow')
+
+    def on_epoch_end(self):
+        if self.counter % self.epoch_break == 0:
+
+            old_params = self.room.params_to_optimize
+            new_params = self.swarm_algorithm.global_best_solution
+            self.room.apply_feature_vector(new_params)
+            self.room.update_carpet_diameter()
+            self.drawer.update(tv_tv='yellow')
+            self.drawer.figure.savefig(osp.join(self.folder_output, f'{self.counter}.png'))
+            self.room.apply_feature_vector(old_params)
+            self.room.update_carpet_diameter()
+            self.drawer.clear()
+        self.counter += 1
+
