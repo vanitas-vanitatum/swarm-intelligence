@@ -126,7 +126,10 @@ class Room(Drawable):
             for f2 in self.furniture:
                 if f1 == f2:
                     continue
-                if f1.intersects(f2):
+                try:
+                    if f1.intersects(f2):
+                        return False
+                except shapely.errors.TopologicalError as e:
                     return False
         return True
 

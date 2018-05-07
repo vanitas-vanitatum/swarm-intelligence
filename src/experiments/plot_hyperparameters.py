@@ -42,8 +42,8 @@ def plot_hyperparams(csv_dir):
 
 
 @cli.command()
-@click.command('csv_path', type=click.Path(exists=True))
-@click.command('output_path')
+@click.argument('csv_path', type=click.Path(exists=True))
+@click.argument('output_path')
 def plot_comparison(csv_path, output_path):
     algorithm_names = ['PSO', 'Whale', 'QSO']
     plt.figure()
@@ -53,7 +53,7 @@ def plot_comparison(csv_path, output_path):
     data = pd.read_csv(csv_path)
     for name in algorithm_names:
         algorithm_data = data.loc[data['algorithm'] == name]
-        plt.plot(algorithm_data['epochs'], algorithm_data['carpet_size'])
+        plt.plot(algorithm_data['epochs'], algorithm_data['carpet_size'], '--', label=name)
     plt.legend(loc='best')
     plt.savefig(output_path)
 
