@@ -1,0 +1,26 @@
+\begin{tabular}{rrrrll}
+\toprule
+ dimension2\_mean &  dimension2\_std &  dimension10\_mean &  dimension10\_std & param\_value &       param\_name \\
+\midrule
+        470.0546 &        240.3253 &          829.0240 &         139.8738 &          10 &  population\_size \\
+        220.2974 &        101.0070 &          952.1071 &         254.0383 &          20 &  population\_size \\
+        189.1319 &         83.0702 &          847.9528 &          47.8551 &          30 &  population\_size \\
+        234.8772 &        102.8558 &          833.4271 &          60.1582 &          40 &  population\_size \\
+        145.2547 &         46.3953 &          839.7866 &          58.0531 &          50 &  population\_size \\
+        138.5553 &         32.8447 &          811.4985 &          83.4751 &          60 &  population\_size \\
+        144.1671 &         69.7823 &          758.0147 &          94.4800 &          70 &  population\_size \\
+        111.6523 &         35.2426 &          751.0293 &         104.1001 &          80 &  population\_size \\
+         81.5471 &         49.7038 &          763.2030 &          67.8580 &          90 &  population\_size \\
+         72.8334 &         37.2386 &          752.3277 &          74.8239 &         100 &  population\_size \\
+         55.4399 &         38.1505 &          726.4338 &          60.7880 &         110 &  population\_size \\
+         72.4821 &         58.9214 &          650.0563 &          42.8459 &         120 &  population\_size \\
+         84.4819 &         38.6958 &          681.0307 &          58.9846 &         130 &  population\_size \\
+         44.8655 &         34.7660 &          663.3502 &         116.8394 &         140 &  population\_size \\
+         54.0349 &         40.4681 &          670.4351 &          79.7286 &         150 &  population\_size \\
+         73.7034 &         36.5741 &          650.0127 &          67.0413 &         160 &  population\_size \\
+         59.2471 &         27.8991 &          638.5891 &          87.5151 &         170 &  population\_size \\
+         82.7588 &         45.8349 &          617.6435 &          53.1255 &         180 &  population\_size \\
+         59.4405 &         42.0244 &          601.5977 &          59.9311 &         190 &  population\_size \\
+         62.4110 &         38.8421 &          642.3965 &          50.3702 &         200 &  population\_size \\
+\bottomrule
+\end{tabular}

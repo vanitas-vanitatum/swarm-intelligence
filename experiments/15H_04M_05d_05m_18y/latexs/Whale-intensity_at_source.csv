@@ -1,0 +1,26 @@
+\begin{tabular}{rrrrrl}
+\toprule
+ dimension2\_mean &  dimension2\_std &  dimension10\_mean &  dimension10\_std &  param\_value &           param\_name \\
+\midrule
+        143.2431 &         58.1944 &          825.3026 &          67.9773 &       0.1000 &  intensity\_at\_source \\
+        151.8762 &         44.1987 &          797.2170 &          62.4058 &       0.6211 &  intensity\_at\_source \\
+        139.8893 &         71.8349 &          868.6441 &         107.4472 &       1.1421 &  intensity\_at\_source \\
+        126.5215 &         54.6931 &          813.6963 &          85.5286 &       1.6632 &  intensity\_at\_source \\
+        142.0719 &         47.5275 &          811.6847 &          61.7809 &       2.1842 &  intensity\_at\_source \\
+        160.1392 &        109.7087 &          799.7580 &          53.2488 &       2.7053 &  intensity\_at\_source \\
+        109.5341 &         61.7043 &          811.3254 &          65.6758 &       3.2263 &  intensity\_at\_source \\
+        163.2197 &         68.3419 &          753.2376 &          72.4930 &       3.7474 &  intensity\_at\_source \\
+        133.0942 &         56.4023 &          779.4360 &          73.4438 &       4.2684 &  intensity\_at\_source \\
+        157.9902 &         57.3892 &          807.2801 &          41.0516 &       4.7895 &  intensity\_at\_source \\
+        112.4308 &         41.4086 &          810.2736 &          56.5962 &       5.3105 &  intensity\_at\_source \\
+        129.3079 &         64.4722 &          798.7747 &          65.4578 &       5.8316 &  intensity\_at\_source \\
+        141.5351 &         45.5568 &          804.6540 &          62.7290 &       6.3526 &  intensity\_at\_source \\
+        146.1133 &         74.7087 &          810.6282 &          94.0816 &       6.8737 &  intensity\_at\_source \\
+        122.5432 &         46.9170 &          823.0936 &          35.8528 &       7.3947 &  intensity\_at\_source \\
+        139.4829 &        113.2882 &          842.6611 &         119.8178 &       7.9158 &  intensity\_at\_source \\
+        173.6990 &         85.8861 &          784.1883 &          76.3665 &       8.4368 &  intensity\_at\_source \\
+        127.3007 &         73.5661 &          821.4049 &          53.2435 &       8.9579 &  intensity\_at\_source \\
+        166.7791 &         68.1649 &          852.1085 &          42.1401 &       9.4789 &  intensity\_at\_source \\
+        118.2852 &         43.4594 &          780.6889 &          49.5788 &      10.0000 &  intensity\_at\_source \\
+\bottomrule
+\end{tabular}
