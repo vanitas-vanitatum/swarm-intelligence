@@ -35,7 +35,7 @@ WHALE_PARAMS = {
 
 TESTED_FUNCTION = Ackley()
 STEPS_NUMBER = 300
-POPULATION_SIZE = 50
+POPULATION_SIZE = 30
 RUN_TIMES = 10
 
 
@@ -149,37 +149,15 @@ def test(test_method=test_single):
     experiment_dir, csv_dir, latex_dir, plots_dir = get_experiment_dir()
     constraints = MoreThanConstraint(-32.768).und(LessThanConstraint(32.768))
 
-    for name, (alg, params) in zip(names, algs_params.items()):
-        print(f'\r{alg}', end='')
-        for logger, param_name in test_method(alg, constraints, params):
-            postfix = '' if test_method == test_single else '-'+str(test_method.__name__)
-            logger.to_csv(os.path.join(csv_dir, f'{name}-{param_name}{postfix}.csv'), index=False,
-                          float_format='%.4f')
-            logger.to_latex(os.path.join(latex_dir, f'{name}-{param_name}{postfix}.tex'), index=False,
-                            float_format='%.4f')
-    print()
-
-
-def test_with_optimal_params(test_method=test_steps_number):
-    names = ['PSO',
-             'Whale',
-             'QSO'
-             ]
-    algs_params = OrderedDict({
-        ParticleSwarmOptimisation: PSO_PARAMS,
-        WhaleAlgorithm: WHALE_PARAMS,
-        QuantumDeltaParticleSwarmOptimization: QSO_PRAMS
-    })
-    experiment_dir, csv_dir, latex_dir, plots_dir = get_experiment_dir()
-    constraints = MoreThanConstraint(-32.768).und(LessThanConstraint(32.768))
-
-    if WhaleAlgorithm in algs_params:
-        rho, eta = (WhaleAlgorithm
+    if WhaleAlgorithm in algs_params.keys():
+        rho2, eta2 = (WhaleAlgorithm
                     .get_optimal_eta_and_rho_zero(get_params_and_boundaries(2, constraints, WhaleAlgorithm)[1]))
+        rho10, eta10 = (WhaleAlgorithm
+            .get_optimal_eta_and_rho_zero(get_params_and_boundaries(10, constraints, WhaleAlgorithm)[1]))
         algs_params[WhaleAlgorithm]['attenuation'] = np.concatenate(
-            [algs_params[WhaleAlgorithm]['attenuation'], [eta]])
+            [algs_params[WhaleAlgorithm]['attenuation'], [eta2, eta10]])
         algs_params[WhaleAlgorithm]['intensity_at_source'] = np.concatenate(
-            [algs_params[WhaleAlgorithm]['intensity_at_source'], [rho]])
+            [algs_params[WhaleAlgorithm]['intensity_at_source'], [rho2, rho10]])
 
     for name, (alg, params) in zip(names, algs_params.items()):
         print(f'\r{alg}', end='')
@@ -193,5 +171,5 @@ def test_with_optimal_params(test_method=test_steps_number):
 
 
 if __name__ == '__main__':
-    #test()
-    test(test_steps_number)
+    test()
+    #test(test_steps_number)
