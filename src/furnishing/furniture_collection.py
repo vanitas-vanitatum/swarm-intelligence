@@ -216,6 +216,53 @@ class Cupboard(RectangularFurniture):
         return patch
 
     def update_polygon(self):
+        super().update_polygon()
+
+        self.pivot_door_1 = np.array([
+            [self.x + self.width / 2, self.y + self.height / 2]
+        ])
+        self.pivot_door_2 = np.array([
+            [self.x - self.width / 2, self.y + self.height / 2]
+        ])
+
+        self.difference_rectangles_door_1 = [
+            np.array([
+                [self.pivot_door_1[0, 0] - self.width / 2, self.pivot_door_1[0, 1]],
+                [self.pivot_door_1[0, 0] - self.width / 2, self.pivot_door_1[0, 1] - self.width / 2],
+                [self.pivot_door_1[0, 0] + self.width / 2, self.pivot_door_1[0, 1] - self.width / 2],
+                [self.pivot_door_1[0, 0] + self.width / 2, self.pivot_door_1[0, 1]]
+            ]),
+            np.array([
+                [self.pivot_door_1[0, 0] - self.width / 2, self.pivot_door_1[0, 1]],
+                [self.pivot_door_1[0, 0] - self.width / 2, self.pivot_door_1[0, 1] + self.width / 2],
+                [self.pivot_door_1[0, 0] + self.width / 2, self.pivot_door_1[0, 1] + self.width / 2],
+                [self.pivot_door_1[0, 0] + self.width / 2, self.pivot_door_1[0, 1]]
+            ])
+        ]
+
+        self.difference_rectangles_door_2 = [
+            np.array([
+                [self.pivot_door_2[0, 0] - self.width / 2, self.pivot_door_2[0, 1]],
+                [self.pivot_door_2[0, 0] - self.width / 2, self.pivot_door_2[0, 1] - self.width / 2],
+                [self.pivot_door_2[0, 0] + self.width / 2, self.pivot_door_2[0, 1] - self.width / 2],
+                [self.pivot_door_2[0, 0] + self.width / 2, self.pivot_door_2[0, 1]]
+            ]),
+            np.array([
+                [self.pivot_door_2[0, 0] - self.width / 2, self.pivot_door_2[0, 1]],
+                [self.pivot_door_2[0, 0] - self.width / 2, self.pivot_door_2[0, 1] + self.width / 2],
+                [self.pivot_door_2[0, 0] + self.width / 2, self.pivot_door_2[0, 1] + self.width / 2],
+                [self.pivot_door_2[0, 0] + self.width / 2, self.pivot_door_2[0, 1]]
+            ])
+        ]
+
+        self.difference_rectangles_door_1[1] = MatrixUtils.rotate_points(
+            self.difference_rectangles_door_1[1], self.open_angle, self.pivot_door_1
+        )
+
+        self.difference_rectangles_door_2[1] = MatrixUtils.rotate_points(
+            self.difference_rectangles_door_2[1], -self.open_angle, self.pivot_door_2
+        )
+
         self.pivot_door_1 = MatrixUtils.rotate_points(self.pivot_door_1,
                                                       self.angle,
                                                       self.center)

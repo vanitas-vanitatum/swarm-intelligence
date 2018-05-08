@@ -15,8 +15,8 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
         self.lf_1 = learning_factor_1
         self.lf_2 = learning_factor_2
 
-    def populate_swarm(self, spawn_boundaries):
-        super().populate_swarm(spawn_boundaries)
+    def populate_swarm(self, spawn_boundaries, population_templates):
+        super().populate_swarm(spawn_boundaries, population_templates)
 
         spawn_boundaries = np.array(spawn_boundaries)
         minimums = spawn_boundaries[:, 0]
@@ -41,7 +41,7 @@ class ParticleSwarmOptimisation(SwarmIntelligence):
         local_factor = self.lf_1 * phi_1 * (self.local_best_solutions - self.population)
         global_factor = self.lf_2 * phi_2 * (self.global_best_solution - self.population)
         v = self.inertia * self.population_velocities + local_factor + global_factor
-        return self.divergence * v
+        return (self.divergence ** step) * v
 
 
 class BasicPSO(ParticleSwarmOptimisation):

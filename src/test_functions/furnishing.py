@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class RoomFitness:
     def __init__(self, room, simple=False):
         self.room = room
@@ -11,7 +12,7 @@ class RoomFitness:
         for i in range(solutions.shape[0]):
             sol = solutions[i, :]
             if self.simple:
-                for j in range(2,sol.shape[0],3):
+                for j in range(2, sol.shape[0], 3):
                     sol[j] = 0
             self.room.apply_feature_vector(sol)
             fitnesses[i, 0] = -self.room.get_possible_carpet_radius()

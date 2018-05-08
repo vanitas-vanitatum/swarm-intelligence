@@ -1,7 +1,6 @@
 import numpy as np
-import math
-from src.specification import Specification
-from src.furnishing.room import Room
+
+from src.furnishing.room import RoomDrawer
 
 
 class BaseConstraint:
@@ -10,7 +9,7 @@ class BaseConstraint:
         return MaybeConstraint(self, other)
 
     def und(self, other):
-        return UndConstraint(self,other)
+        return UndConstraint(self, other)
 
     def nope(self):
         return NopeConstraint(self)
@@ -69,7 +68,7 @@ class LessThanConstraint(BaseConstraint):
         self.limit = limit
 
     def check(self, solution):
-        #print(solution.shape)
+        # print(solution.shape)
         return np.all(solution < self.limit, axis=1)
 
 
@@ -79,7 +78,7 @@ class MoreThanConstraint(BaseConstraint):
         self.limit = limit
 
     def check(self, solution):
-        #print(solution.shape)
+        # print(solution.shape)
         return np.all(solution > self.limit, axis=1)
 
 
@@ -97,8 +96,10 @@ class RoomConstraint(BaseConstraint):
             if self.simple:
                 for j in range(2, solutions.shape[1], 3):
                     solutions[i, j] = 0
-            self.room.apply_feature_vector(solutions[i,:])
-            is_ok = self.room.are_furniture_ok() and self.room.are_all_furniture_inside()
+            self.room.apply_feature_vector(solutions[i, :])
+            # self.room.update_carpet_diameter()
+            # RoomDrawer(self.room).draw_all(tv_tv='yellow')
+            is_ok = self.room.are_furniture_ok()
             res[i] = is_ok
         self.room.apply_feature_vector(old_sol)
         return res.astype(bool)
