@@ -1,17 +1,20 @@
-import argparse
 import glob
 import os.path as osp
 
-import pandas as pd
+import click
 import matplotlib.pyplot as plt
-
-argument_parser = argparse.ArgumentParser()
-argument_parser.add_argument('csvdir', help='Path to all csvs')
-args = argument_parser.parse_args()
+import pandas as pd
 
 
-def plot():
-    dir = args.csvdir
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
+@click.argument('csv_dir', type=click.Path(exists=True))
+def plot_hyperparams(csv_dir):
+    dir = csv_dir
     y_axis = 'Fitness function value $\\times$ epoch number'
 
     for f in glob.glob(osp.join(dir, '*.csv')):
@@ -38,5 +41,22 @@ def plot():
         plt.savefig(output_file)
 
 
+@cli.command()
+@click.argument('csv_path', type=click.Path(exists=True))
+@click.argument('output_path')
+def plot_comparison(csv_path, output_path):
+    algorithm_names = ['PSO', 'Whale', 'QSO']
+    plt.figure()
+    plt.ylabel('Negated carpet radius')
+    plt.xlabel('Epoch')
+
+    data = pd.read_csv(csv_path)
+    for name in algorithm_names:
+        algorithm_data = data.loc[data['algorithm'] == name]
+        plt.plot(algorithm_data['epochs'], algorithm_data['carpet_size'], '--', label=name)
+    plt.legend(loc='best')
+    plt.savefig(output_path)
+
+
 if __name__ == '__main__':
-    plot()
+    cli()

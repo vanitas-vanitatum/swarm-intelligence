@@ -23,29 +23,39 @@ class SwarmIntelligence:
         self._rng = np.random.RandomState(seed=self._seed)
         self._step_number = None
 
-    def compile(self, fit_function, spawn_boundaries):
+    def compile(self, fit_function, spawn_boundaries, population_templates=None):
         """
         `Compiles` model so it will use particular fitness function and populates swarm.
         :param fit_function: Fit function to use
         :param spawn_boundaries:
             Search space for each dimension. It should be in form of list of tuples: [(b_{min}, b_{max}), ...],
             where num of tuples is equal to number of dimensions
+        :param population_templates:
+            Nd array of already generated population to sample from. If not None, spawn_boundaries param is ignored
         :return: None
         """
         self.fit_function = fit_function
-        self.populate_swarm(spawn_boundaries)
+        self.populate_swarm(spawn_boundaries, population_templates)
         self._compiled = True
 
-    def populate_swarm(self, spawn_boundaries):
+    def populate_swarm(self, spawn_boundaries, population_templates):
         self._step_number = 0
-        spawn_boundaries = np.array(spawn_boundaries)
-        minimums = spawn_boundaries[:, 0]
-        maxes = spawn_boundaries[:, 1]
-        population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
-        if self.constraints:
-            for i in range(self.population_size):
-                while not self.constraints.check(population[i, :].reshape(1, -1)):
-                    population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
+        if population_templates is not None:
+            indices = np.arange(0, len(population_templates))
+            selected_indices = self._rng.choice(indices, size=self.population_size)
+            population = population_templates[selected_indices]
+        else:
+            spawn_boundaries = np.array(spawn_boundaries)
+            minimums = spawn_boundaries[:, 0]
+            maxes = spawn_boundaries[:, 1]
+            population = self._rng.uniform(minimums, maxes, size=(self.population_size, self.nb_features))
+            if self.constraints:
+                for i in range(self.population_size):
+                    counter = 0
+                    while not self.constraints.check(population[i, :].reshape(1, -1)):
+                        population[i, :] = self._rng.uniform(minimums, maxes, size=(1, self.nb_features))
+                        counter += 1
+                    print('Ok', counter)
         self.population = population
 
         fit_values = self.calculate_fitness(population)

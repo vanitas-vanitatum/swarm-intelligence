@@ -1,9 +1,13 @@
+import os.path as osp
+
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yaml
 from matplotlib import cm
+
+from src.furnishing.room import RoomDrawer
 
 # from collections import OrderedDict
 
@@ -101,10 +105,6 @@ class Drawer2d(Callback):
 
         population = self.swarm_algorithm.population
 
-        xs = population[:, 0]
-        ys = population[:, 1]
-
-        dots_coordinates = np.stack(np.meshgrid(xs, ys))
         plt.contour(
             self.space_visualization_coordinates[0],
             self.space_visualization_coordinates[1],
@@ -118,18 +118,23 @@ class Drawer2d(Callback):
             zorder=1
         )
 
-        plt.scatter(
-
-            xs,
-            ys,
-            marker='x',
-            linewidths=2,
-            color='red',
-            s=100,
-            zorder=2
-        )
+        plt.ylim(ymin=self.y1, ymax=self.y2)
+        plt.xlim(xmin=self.x1, xmax=self.x2)
 
         if self.last_population is not None:
+            old_xs = self.last_population[:, 0]
+            old_ys = self.last_population[:, 1]
+            plt.scatter(
+                old_xs,
+                old_ys,
+                marker='x',
+                linewidths=2,
+                color='red',
+                s=100,
+                zorder=2
+            )
+
+            arrow_size = max(np.max(self.x2) - np.min(self.x1), np.max(self.y2) - np.min(self.y1))
             for i in range(len(population)):
                 pos = self.last_population[i]
                 new_pos = population[i]
@@ -139,8 +144,8 @@ class Drawer2d(Callback):
                     plt.arrow(x, y, dx, dy, head_width=0.5,
                               head_length=1, fc='k', ec='k')
 
-        plt.pause(0.01)
         self.last_population = population
+        plt.pause(0.1)
         plt.clf()
         plt.cla()
 
@@ -241,3 +246,44 @@ class ParamStatsStoreCallback(Callback):
 
     def get_params(self):
         return [self.last_epoch, self.best_fitness, self.worst_fitness, self.average_fitness]
+
+
+class EpochLoggerCallback(Callback):
+    def __init__(self):
+        super().__init__()
+        self.logger = pd.DataFrame(columns=['epoch', 'best', 'avg', 'worst'])
+
+    def on_epoch_end(self):
+        self.logger = self.logger.append({
+            'epoch': self.swarm_algorithm._step_number,
+            'best': self.swarm_algorithm.current_global_fitness,
+            'avg': np.mean(self.swarm_algorithm.current_local_fitness),
+            'worst': np.max(self.swarm_algorithm.current_local_fitness)
+        }, ignore_index=True)
+
+
+class RoomDrawerCallback(Callback):
+    def __init__(self, room, folder_output, epoch_break=4):
+        super().__init__()
+        self.room = room
+        self.epoch_break = epoch_break
+        self.counter = 0
+        self.folder_output = folder_output
+        plt.ion()
+        self.drawer = RoomDrawer(room)
+
+    def on_optimization_start(self):
+        self.drawer.draw_all(tv_tv='yellow')
+
+    def on_epoch_end(self):
+        if self.counter % self.epoch_break == 0:
+            old_params = self.room.params_to_optimize
+            new_params = self.swarm_algorithm.global_best_solution
+            self.room.apply_feature_vector(new_params)
+            self.room.update_carpet_diameter()
+            self.drawer.update(tv_tv='yellow')
+            self.drawer.figure.savefig(osp.join(self.folder_output, f'{self.counter}.png'))
+            self.room.apply_feature_vector(old_params)
+            self.room.update_carpet_diameter()
+            self.drawer.clear()
+        self.counter += 1
