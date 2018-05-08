@@ -37,6 +37,7 @@ WHALE_PARAMS = {
 
 TESTED_FUNCTION = Ackley()
 STEPS_NUMBER = 300
+#POPULATION_SIZE = 30
 POPULATION_SIZE = 200
 RUN_TIMES = 10
 PATIENCE = 30
@@ -156,6 +157,16 @@ def test(test_method=test_single):
     experiment_dir, csv_dir, latex_dir, plots_dir = get_experiment_dir()
     constraints = MoreThanConstraint(-32.768).und(LessThanConstraint(32.768))
 
+    if WhaleAlgorithm in algs_params.keys():
+        rho2, eta2 = (WhaleAlgorithm
+                      .get_optimal_eta_and_rho_zero(get_params_and_boundaries(2, constraints, WhaleAlgorithm)[1]))
+        rho10, eta10 = (WhaleAlgorithm
+            .get_optimal_eta_and_rho_zero(get_params_and_boundaries(10, constraints, WhaleAlgorithm)[1]))
+        algs_params[WhaleAlgorithm]['attenuation'] = np.concatenate(
+            [algs_params[WhaleAlgorithm]['attenuation'], [eta2, eta10]])
+        algs_params[WhaleAlgorithm]['intensity_at_source'] = np.concatenate(
+            [algs_params[WhaleAlgorithm]['intensity_at_source'], [rho2, rho10]])
+
     for name, (alg, params) in zip(names, algs_params.items()):
         print(f'\r{alg}', end='')
         for logger, param_name in test_method(alg, constraints, params):
@@ -274,12 +285,15 @@ def test_with_optimal_params(test_method=test_steps_number):
     constraints = MoreThanConstraint(-32.768).und(LessThanConstraint(32.768))
 
     if WhaleAlgorithm in algs_params:
-        rho, eta = (WhaleAlgorithm
+        rho2, eta2 = (WhaleAlgorithm
                     .get_optimal_eta_and_rho_zero(get_params_and_boundaries(2, constraints, WhaleAlgorithm)[1]))
+        rho10, eta10 = (WhaleAlgorithm
+            .get_optimal_eta_and_rho_zero(get_params_and_boundaries(10, constraints, WhaleAlgorithm)[1]))
         algs_params[WhaleAlgorithm]['attenuation'] = np.concatenate(
-            [algs_params[WhaleAlgorithm]['attenuation'], [eta]])
+            [algs_params[WhaleAlgorithm]['attenuation'], [eta2, eta10]])
         algs_params[WhaleAlgorithm]['intensity_at_source'] = np.concatenate(
-            [algs_params[WhaleAlgorithm]['intensity_at_source'], [rho]])
+            [algs_params[WhaleAlgorithm]['intensity_at_source'], [rho2, rho10]])
+              
 
     for name, (alg, params) in zip(names, algs_params.items()):
         print(f'\r{alg}', end='')

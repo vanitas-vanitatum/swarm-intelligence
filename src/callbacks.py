@@ -71,7 +71,7 @@ class CallbackContainer(Callback):
 
 class Drawer2d(Callback):
     def __init__(self, space_boundaries, space_sampling_size=1000,
-                 isolines_spacing=4):
+                 isolines_spacing=4, arrows=True):
         super().__init__()
         self.optimized_function = None
         self.space_sampling_size = space_sampling_size
@@ -83,6 +83,7 @@ class Drawer2d(Callback):
         self.space_visualization_coordinates = None
         self.contour_values = None
         self.isolines_spacing = isolines_spacing
+        self.arrows = arrows
 
     def initialize_callback(self, swarm_algorithm):
         super().initialize_callback(swarm_algorithm)
@@ -139,9 +140,9 @@ class Drawer2d(Callback):
                 new_pos = population[i]
                 dx, dy = new_pos - pos
                 x, y = pos
-
-                plt.arrow(x, y, dx, dy, head_width=0.02 * arrow_size,
-                          head_length=0.04 * arrow_size, fc='k', ec='k')
+                if self.arrows:
+                    plt.arrow(x, y, dx, dy, head_width=0.5,
+                              head_length=1, fc='k', ec='k')
 
         self.last_population = population
         plt.pause(0.1)
@@ -159,7 +160,7 @@ class PrintLogCallback(Callback):
               'Global Best:', self.swarm_algorithm.current_global_fitness)
 
 
-class FileLogCallback(Callback):
+class PandasLogCallback(Callback):
     NON_HYPERPARAMS = ['population', 'population_size',
                        '_compiled', '_seed',
                        '_rng', '_step_number',
@@ -171,10 +172,19 @@ class FileLogCallback(Callback):
                        'current_global_fitness',
                        'current_local_fitness']
 
-    def __init__(self, result_filename):
+    def __init__(self):
         super().__init__()
         self.log_df = pd.DataFrame(columns=['Epoch', 'Best Global Fitness', 'Worst Local Fitness'])
-        self.result_filename = result_filename
+
+    def on_optimization_start(self):
+        epoch = int(self.swarm_algorithm._step_number)
+        bgfit = self.swarm_algorithm.current_global_fitness
+        wlfit = np.max(self.swarm_algorithm.current_local_fitness)
+
+        self.log_df = self.log_df.append({'Epoch': epoch,
+                                          'Best Global Fitness': bgfit,
+                                          'Worst Local Fitness': wlfit},
+                                         ignore_index=True)
 
     def on_epoch_end(self):
         epoch = int(self.swarm_algorithm._step_number)
@@ -185,6 +195,19 @@ class FileLogCallback(Callback):
                                           'Best Global Fitness': bgfit,
                                           'Worst Local Fitness': wlfit},
                                          ignore_index=True)
+
+    def on_optimization_end(self):
+        self.log_df['Epoch'] = pd.to_numeric(self.log_df['Epoch'], downcast='integer')
+
+    def get_log(self):
+        return self.log_df
+
+
+class FileLogCallback(PandasLogCallback):
+
+    def __init__(self, result_filename):
+        super().__init__()
+        self.result_filename = result_filename
 
     def on_optimization_end(self):
         meta = {'FitFunction': self.swarm_algorithm.fit_function.__self__.__class__.__name__,
