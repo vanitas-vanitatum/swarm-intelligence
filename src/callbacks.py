@@ -104,10 +104,6 @@ class Drawer2d(Callback):
 
         population = self.swarm_algorithm.population
 
-        xs = population[:, 0]
-        ys = population[:, 1]
-
-        dots_coordinates = np.stack(np.meshgrid(xs, ys))
         plt.contour(
             self.space_visualization_coordinates[0],
             self.space_visualization_coordinates[1],
@@ -121,29 +117,34 @@ class Drawer2d(Callback):
             zorder=1
         )
 
-        plt.scatter(
-
-            xs,
-            ys,
-            marker='x',
-            linewidths=2,
-            color='red',
-            s=100,
-            zorder=2
-        )
+        plt.ylim(ymin=self.y1, ymax=self.y2)
+        plt.xlim(xmin=self.x1, xmax=self.x2)
 
         if self.last_population is not None:
+            old_xs = self.last_population[:, 0]
+            old_ys = self.last_population[:, 1]
+            plt.scatter(
+                old_xs,
+                old_ys,
+                marker='x',
+                linewidths=2,
+                color='red',
+                s=100,
+                zorder=2
+            )
+
+            arrow_size = max(np.max(self.x2) - np.min(self.x1), np.max(self.y2) - np.min(self.y1))
             for i in range(len(population)):
                 pos = self.last_population[i]
                 new_pos = population[i]
                 dx, dy = new_pos - pos
                 x, y = pos
 
-                plt.arrow(x, y, dx, dy, head_width=0.5,
-                          head_length=1, fc='k', ec='k')
+                plt.arrow(x, y, dx, dy, head_width=0.02 * arrow_size,
+                          head_length=0.04 * arrow_size, fc='k', ec='k')
 
-        plt.pause(0.01)
         self.last_population = population
+        plt.pause(0.1)
         plt.clf()
         plt.cla()
 
